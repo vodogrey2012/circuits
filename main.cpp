@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Wire.h"
-#include "Circuit.h"
-#include "CircuitActive.h"
+#include "src/Wire.h"
+#include "src/Circuit.h"
+#include "src/CircuitActive.h"
 
 
 int main() {

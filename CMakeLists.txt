@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(circuits)
 
+add_subdirectory(tests)
+
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(circuits main.cpp Wire.cpp Wire.h Point.cpp Point.h Circuit.cpp Circuit.h CircuitActive.cpp CircuitActive.h Matrix.cpp Matrix.h)
+add_executable(circuits main.cpp src/Wire.cpp src/Wire.h src/Point.cpp src/Point.h src/Circuit.cpp src/Circuit.h src/CircuitActive.cpp src/CircuitActive.h src/Matrix.cpp src/Matrix.h tests/TestMatrix.cpp)
