@@ -166,18 +166,3 @@ std::ostream &operator<<(std::ostream &os, const Matrix &m) {
     return os;
 }
 
-bool operator==(const Matrix &m1, const Matrix &m2) {
-    for (size_t i = 0; i < m1.GetXDem(); ++i) {
-        for (size_t j = 0; j < m1.GetYDem(); ++j) {
-            if (m1[j][i] != m2[j][i]) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool operator!=(const Matrix &m1, const Matrix &m2) {
-    return !(m1==m2);
-}
-
