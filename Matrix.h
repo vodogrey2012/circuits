@@ -25,6 +25,8 @@ public:
     friend Matrix operator*(const Matrix& m1, const Matrix& m2);
     friend Matrix operator*(const Matrix &m1, const double &factor);
     friend std::ostream& operator<<(std::ostream& os, const Matrix& m);
+    friend bool operator==(const Matrix& m1, const Matrix& m2);
+    friend bool operator!=(const Matrix& m1, const Matrix& m2);
     Matrix operator=(const Matrix& m1);
 private:
     int _i;
