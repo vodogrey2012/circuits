@@ -27,8 +27,8 @@ TEST(matrix, matrix_equality) {
 
 TEST(matrix, matrix_dims) {
     Matrix m1(4, 5);
-    ASSERT_EQ(m1.GetXDem(), 4);
-    ASSERT_EQ(m1.GetYDem(), 5);
+    ASSERT_EQ(m1.GetIDem(), 4);
+    ASSERT_EQ(m1.GetJDem(), 5);
 }
 
 TEST(matrix, matrix_sum) {
@@ -40,31 +40,35 @@ TEST(matrix, matrix_sum) {
     Matrix res(1, 1);
     res[0][0] = 3;
     ASSERT_EQ((m1 + m2), res);
+    ASSERT_EQ((m1 - m2).GetIDem(), 1);
+    ASSERT_EQ((m1 - m2).GetJDem(), 1);
 
     Matrix m3(2, 3);
     m3[0][0] = 1;
-    m3[0][1] = 2;
-    m3[2][0] = 2;
-    m3[1][0] = 3;
+    m3[1][0] = 2;
+    m3[0][2] = 2;
+    m3[0][1] = 3;
     m3[1][1] = 4;
-    m3[2][1] = 1;
+    m3[1][2] = 1;
 
 
     Matrix m4(2, 3);
     m4[0][0] = 4;
-    m4[0][1] = 3;
-    m4[2][0] = 3;
-    m4[1][0] = 2;
+    m4[1][0] = 3;
+    m4[0][2] = 3;
+    m4[0][1] = 2;
     m4[1][1] = 1;
-    m4[2][1] = 4;
+    m4[1][2] = 4;
 
     Matrix r = m3 + m4;
-
+    std::cout << r << std::endl;
     for (int i = 0; i < 2; i ++) {
         for (int j = 0; j < 3; j ++) {
             ASSERT_EQ(r[i][j], 5);
         }
     }
+    ASSERT_EQ(r.GetIDem(), 2);
+    ASSERT_EQ(r.GetJDem(), 3);
 }
 
 TEST(matrix, matrix_diff) {
@@ -76,23 +80,25 @@ TEST(matrix, matrix_diff) {
     Matrix res(1, 1);
     res[0][0] = 2;
     ASSERT_EQ((m1 - m2), res);
+    ASSERT_EQ((m1 - m2).GetIDem(), 1);
+    ASSERT_EQ((m1 - m2).GetJDem(), 1);
 
     Matrix m3(2, 3);
     m3[0][0] = 1;
-    m3[0][1] = 2;
-    m3[2][0] = 2;
-    m3[1][0] = 3;
+    m3[1][0] = 2;
+    m3[0][2] = 2;
+    m3[0][1] = 3;
     m3[1][1] = 3;
-    m3[2][1] = 4;
+    m3[1][2] = 4;
 
 
     Matrix m4(2, 3);
     m4[0][0] = 0;
-    m4[0][1] = 1;
-    m4[2][0] = 1;
-    m4[1][0] = 2;
+    m4[1][0] = 1;
+    m4[0][2] = 1;
+    m4[0][1] = 2;
     m4[1][1] = 2;
-    m4[2][1] = 3;
+    m4[1][2] = 3;
 
     Matrix r = m3 - m4;
 
@@ -101,6 +107,8 @@ TEST(matrix, matrix_diff) {
             ASSERT_EQ(r[i][j], 1);
         }
     }
+    ASSERT_EQ(r.GetIDem(), 2);
+    ASSERT_EQ(r.GetJDem(), 3);
 }
 
 TEST(matrix, multiplication) {
@@ -117,12 +125,36 @@ TEST(matrix, multiplication) {
     m2[1][1] = 1;
 
     Matrix res(2, 2);
-    res[0][0] = 8;
-    res[0][1] = 20;
-    res[1][0] = 5;
-    res[1][1] = 13;
+    res[0][0] = 13;
+    res[0][1] = 5;
+    res[1][0] = 20;
+    res[1][1] = 8;
 
     ASSERT_EQ(m1 * m2, res);
+    ASSERT_EQ((m1 * m2).GetIDem(), 2);
+    ASSERT_EQ((m1 * m2).GetJDem(), 2);
+
+    Matrix m3(1, 5);
+    m3[0][0] = 1;
+    m3[0][1] = 2;
+    m3[0][2] = 3;
+    m3[0][3] = 4;
+    m3[0][4] = 5;
+
+    Matrix m4(5, 1);
+    m4[0][0] = 5;
+    m4[1][0] = 4;
+    m4[2][0] = 3;
+    m4[3][0] = 2;
+    m4[4][0] = 1;
+
+    res = Matrix(1, 1);
+    res[0][0] = 35;
+
+    ASSERT_EQ(m3 * m4, res);
+    ASSERT_EQ((m3 * m4).GetIDem(), 1);
+    ASSERT_EQ((m3 * m4).GetJDem(), 1);
+
 }
 
 TEST(matrix, factor_multiplication) {
@@ -140,6 +172,25 @@ TEST(matrix, factor_multiplication) {
     ASSERT_EQ(res[0][1], 7.5);
     ASSERT_EQ(res[1][0], 5);
     ASSERT_EQ(res[1][1], 10);
+    ASSERT_EQ(res.GetIDem(), 2);
+    ASSERT_EQ(res.GetJDem(), 2);
+
+    Matrix m2(1, 5);
+    m2[0][0] = 1;
+    m2[0][1] = 2;
+    m2[0][2] = 3;
+    m2[0][3] = 4;
+    m2[0][4] = 5;
+
+    Matrix res1 = m2 * -2.0;
+    ASSERT_EQ(res1[0][0], -2);
+    ASSERT_EQ(res1[0][1], -4);
+    ASSERT_EQ(res1[0][2], -6);
+    ASSERT_EQ(res1[0][3], -8);
+    ASSERT_EQ(res1[0][4], -10);
+
+    ASSERT_EQ(res1.GetIDem(), 1);
+    ASSERT_EQ(res1.GetJDem(), 5);
 }
 
 TEST(matrix, inverse) {
@@ -158,6 +209,8 @@ TEST(matrix, inverse) {
     E[1][1] = 1;
 
     ASSERT_EQ(m1 * inv, E);
+    ASSERT_EQ(inv.GetIDem(), 2);
+    ASSERT_EQ(inv.GetJDem(), 2);
 }
 
 TEST(matrix, wrong_dimensions) {

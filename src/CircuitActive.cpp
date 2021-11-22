@@ -30,16 +30,16 @@ void CircuitActive::FindMaxTree() {
 }
 
 void CircuitActive::CalcMatrix(Matrix& C, Matrix& Z, Matrix& E) {
-    for(size_t i = 0; i < E.GetXDem(); ++i){
+    for(size_t i = 0; i < E.GetIDem(); ++i){
         E[0][i] = _wires[i].GetE();
         Z[i][i] = _wires[i].GetR();
     }
 
-    for(size_t i = 0; i < C.GetXDem(); ++i){
+    for(size_t i = 0; i < C.GetIDem(); ++i){
         _wremoved[i]->SetExcluded(false);
         auto path = FindNoMonoTreePath(*_wremoved[i]);
         _no_mono_paths.emplace_back(std::make_pair(path, 0));
-        for(size_t j = 0; j < C.GetYDem(); ++j){
+        for(size_t j = 0; j < C.GetJDem(); ++j){
             for(size_t k = 0; k < path.size()-1; ++k){
                 if(path[k] == _wires[j].GetIndex1() && path[k+1] == _wires[j].GetIndex2())
                     C[j][i] = 1;
@@ -59,7 +59,7 @@ void CircuitActive::FindMeshCurrents() {
     CalcMatrix(C, Z, E);
 
     auto res = (C*Z*C.Transponse()).Inv()*C*E;
-    for(size_t i = 0; i < res.GetXDem(); ++i)
+    for(size_t i = 0; i < res.GetIDem(); ++i)
         _no_mono_paths[i].second = res[0][i];
 }
 

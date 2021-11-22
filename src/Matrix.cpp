@@ -9,56 +9,59 @@
 Matrix::Matrix(int i, int j) {
     _i = i;
     _j = j;
-    _matrix.resize(j);
+    _matrix.resize(i);
     for(auto & it : _matrix )
-        it.resize(i);
+        it.resize(j);
 }
 
-int Matrix::GetXDem() const {
+int Matrix::GetIDem() const {
     return _i;
 }
 
-int Matrix::GetYDem() const {
+int Matrix::GetJDem() const {
     return _j;
 }
 
 Matrix operator+(const Matrix &m1, const Matrix &m2) {
-    assert(m1.GetXDem() == m2.GetXDem() && m1.GetYDem() == m2.GetYDem() && "Invalid dimensions for + operation");
-    Matrix res(m1.GetXDem(), m1.GetYDem());
-    for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetYDem(); ++y)
+    assert(m1.GetIDem() == m2.GetIDem() && m1.GetJDem() == m2.GetJDem() && "Invalid dimensions for + operation");
+    Matrix res(m1.GetIDem(), m1.GetJDem());
+    for(int x = 0; x < res.GetIDem(); ++x)
+        for(int y = 0; y < m1.GetJDem(); ++y)
             res[x][y] = m1[x][y] + m2[x][y];
     return res;
 }
 
 Matrix operator-(const Matrix &m1, const Matrix &m2) {
-    assert(m1.GetXDem() == m2.GetXDem() && m1.GetYDem() == m2.GetYDem() && "Invalid dimensions for - operation");
-    Matrix res(m1.GetXDem(), m1.GetYDem());
-    for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetYDem(); ++y)
+    assert(m1.GetIDem() == m2.GetIDem() && m1.GetJDem() == m2.GetJDem() && "Invalid dimensions for - operation");
+    Matrix res(m1.GetIDem(), m1.GetJDem());
+    for(int x = 0; x < res.GetIDem(); ++x)
+        for(int y = 0; y < res.GetJDem(); ++y)
             res[x][y] = m1[x][y] - m2[x][y];
     return res;
 }
 
-std::vector<double> &Matrix::operator[](int n) {return _matrix[n];}
+std::vector<double> &Matrix::operator[](int n) {
+    assert(n < _i && "Index out of range");
+    return _matrix[n];
+}
 
 const std::vector<double> &Matrix::operator[](int n) const {return _matrix[n];}
 
 Matrix operator*(const Matrix &m1, const Matrix &m2) {
-    assert(m2.GetXDem() == m1.GetYDem() && "Invalid dimensions for * operation");
-    Matrix res(m1.GetXDem(), m2.GetYDem());
-    for(int x = 0; x < m2.GetYDem(); ++x)
-        for(int y = 0; y < m1.GetXDem(); ++y)
-            for(int z = 0; z < m1.GetYDem(); ++z){
-                res[x][y] += m1[z][y]*m2[x][z];
+    assert(m2.GetIDem() == m1.GetJDem() && "Invalid dimensions for * operation");
+    Matrix res(m1.GetIDem(), m2.GetJDem());
+    for(int x = 0; x < m1.GetIDem(); ++x)
+        for(int y = 0; y < m2.GetJDem(); ++y)
+            for(int z = 0; z < m1.GetJDem(); ++z){
+                res[x][y] += m1[x][z]*m2[z][y];
             }
     return res;
 }
 
 Matrix operator*(const Matrix &m1, const double &factor) {
-    Matrix res(m1.GetXDem(), m1.GetYDem());
-    for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetYDem(); ++y)
+    Matrix res(m1.GetIDem(), m1.GetJDem());
+    for(int x = 0; x < m1.GetIDem(); ++x)
+        for(int y = 0; y < m1.GetJDem(); ++y)
                 res[x][y] = m1[x][y]*factor;
     return res;
 }
@@ -72,9 +75,9 @@ Matrix Matrix::Transponse() {
 }
 
 Matrix Matrix::operator=(const Matrix &m1) {
-    Matrix res(m1.GetXDem(), m1.GetYDem());
-    for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetYDem(); ++y)
+    Matrix res(m1.GetIDem(), m1.GetJDem());
+    for(int x = 0; x < m1.GetIDem(); ++x)
+        for(int y = 0; y < m1.GetJDem(); ++y)
             res[x][y] = m1[x][y];
     return res;
 }
@@ -84,11 +87,6 @@ double Matrix::Det() {
     auto save = _matrix;
     return Determinant(save);
 }
-
-
-
-
-
 
 class nulled : public std::unary_function<std::vector<double>, bool> {
 public:
@@ -155,7 +153,7 @@ Matrix Matrix::Inv() {
             auto minor_det = minor.Det();
             if((x+y)%2 == 1)
                 minor_det *= -1.0;
-            ret[y][x] = minor_det/std::abs(det);
+            ret[y][x] = minor_det/det;
         }
     }
     return ret;
@@ -164,7 +162,7 @@ Matrix Matrix::Inv() {
 std::ostream &operator<<(std::ostream &os, const Matrix &m) {
     for(size_t i = 0; i < m._i; ++i){
         for(size_t j = 0; j < m._j; ++j){
-            os << m._matrix[j][i] << "\t|";
+            os << m._matrix[i][j] << "\t|";
         }
         os << std::endl;
     }
@@ -172,9 +170,9 @@ std::ostream &operator<<(std::ostream &os, const Matrix &m) {
 }
 
 bool operator==(const Matrix &m1, const Matrix &m2) {
-    for (size_t i = 0; i < m1.GetXDem(); ++i) {
-        for (size_t j = 0; j < m1.GetYDem(); ++j) {
-            if (m1[j][i] != m2[j][i]) {
+    for (size_t i = 0; i < m1.GetIDem(); ++i) {
+        for (size_t j = 0; j < m1.GetJDem(); ++j) {
+            if (m1[i][j] != m2[i][j]) {
                 return false;
             }
         }
@@ -185,3 +183,4 @@ bool operator==(const Matrix &m1, const Matrix &m2) {
 bool operator!=(const Matrix &m1, const Matrix &m2) {
     return !(m1==m2);
 }
+

@@ -11,8 +11,9 @@
 class Matrix {
 public:
     Matrix(int i, int j);
-    int GetXDem() const;
-    int GetYDem() const;
+    ~Matrix()= default;
+    int GetIDem() const;
+    int GetJDem() const;
 
 public:
     std::vector<double>& operator[](int n);
