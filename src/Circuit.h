@@ -7,12 +7,16 @@
 
 #include "Point.h"
 #include <iostream>
+#include <fstream>
+#include <sys/stat.h>
+
 
 class Circuit {
 public:
     Circuit();
     void AddWire(Wire wire);
     void ConnectWires();
+    void ReadFromFile(const std::string& filename);
     friend std::ostream& operator<<(std::ostream& os, const Circuit& circuit);
 protected:
     void UniquePoints();
