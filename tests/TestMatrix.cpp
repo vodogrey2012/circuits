@@ -34,6 +34,23 @@ TEST(matrix, matrix_sum) {
     Matrix res(1, 1);
     res[0][0] = 3;
     ASSERT_EQ((m1 + m2), res);
+
+    Matrix m3(2, 2);
+    m3[0][0] = 1;
+    m3[0][1] = 2;
+    m3[1][0] = 3;
+    m3[1][1] = 4;
+
+    Matrix m4(2, 2);
+    m4[0][0] = 4;
+    m4[0][1] = 3;
+    m4[1][0] = 2;
+    m4[1][1] = 1;
+    for (int i = 0; i < 2; i ++) {
+        for (int j = 0; j < 2; j ++) {
+            ASSERT_EQ((m3 + m4)[i][j], 5);
+        }
+    }
 }
 
 TEST(matrix, matrix_diff) {
