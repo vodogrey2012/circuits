@@ -25,6 +25,12 @@ TEST(matrix, matrix_equality) {
     ASSERT_NE(m1, m2);
 }
 
+TEST(matrix, matrix_dims) {
+    Matrix m1(4, 5);
+    ASSERT_EQ(m1.GetXDem(), 4);
+    ASSERT_EQ(m1.GetYDem(), 5);
+}
+
 TEST(matrix, matrix_sum) {
     Matrix m1(1, 1);
     m1[0][0] = 1;
@@ -35,20 +41,28 @@ TEST(matrix, matrix_sum) {
     res[0][0] = 3;
     ASSERT_EQ((m1 + m2), res);
 
-    Matrix m3(2, 2);
+    Matrix m3(2, 3);
     m3[0][0] = 1;
     m3[0][1] = 2;
+    m3[2][0] = 2;
     m3[1][0] = 3;
     m3[1][1] = 4;
+    m3[2][1] = 1;
 
-    Matrix m4(2, 2);
+
+    Matrix m4(2, 3);
     m4[0][0] = 4;
     m4[0][1] = 3;
+    m4[2][0] = 3;
     m4[1][0] = 2;
     m4[1][1] = 1;
+    m4[2][1] = 4;
+
+    Matrix r = m3 + m4;
+
     for (int i = 0; i < 2; i ++) {
-        for (int j = 0; j < 2; j ++) {
-            ASSERT_EQ((m3 + m4)[i][j], 5);
+        for (int j = 0; j < 3; j ++) {
+            ASSERT_EQ(r[i][j], 5);
         }
     }
 }
@@ -84,6 +98,23 @@ TEST(matrix, multiplication) {
     res[1][1] = 13;
 
     ASSERT_EQ(m1 * m2, res);
+}
+
+TEST(matrix, factor_multiplication) {
+    Matrix m1(2, 2);
+    m1[0][0] = 2;
+    m1[0][1] = 3;
+    m1[1][0] = 2;
+    m1[1][1] = 4;
+
+    Matrix res = m1 * 2.5;
+    // Matrix m1 has not changed:
+    ASSERT_EQ(m1[0][0], 2);
+    // Elements of matrix res:
+    ASSERT_EQ(res[0][0], 5);
+    ASSERT_EQ(res[0][1], 7.5);
+    ASSERT_EQ(res[1][0], 5);
+    ASSERT_EQ(res[1][1], 10);
 }
 
 TEST(matrix, inverse) {

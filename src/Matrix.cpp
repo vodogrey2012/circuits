@@ -26,7 +26,7 @@ Matrix operator+(const Matrix &m1, const Matrix &m2) {
     assert(m1.GetXDem() == m2.GetXDem() && m1.GetYDem() == m2.GetYDem() && "Invalid dimensions for + operation");
     Matrix res(m1.GetXDem(), m1.GetYDem());
     for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetXDem(); ++y)
+        for(int y = 0; y < m1.GetYDem(); ++y)
             res[x][y] = m1[x][y] + m2[x][y];
     return res;
 }
@@ -73,7 +73,7 @@ Matrix Matrix::Transponse() {
 
 Matrix Matrix::operator=(const Matrix &m1) {
     Matrix res(m1.GetXDem(), m1.GetYDem());
-    for(int x = 0; x < m1.GetYDem(); ++x)
+    for(int x = 0; x < m1.GetXDem(); ++x)
         for(int y = 0; y < m1.GetYDem(); ++y)
             res[x][y] = m1[x][y];
     return res;
@@ -130,7 +130,7 @@ double Matrix::Determinant(std::vector<std::vector<double>> &Buffer) {
     sort(Buffer.begin() + 1, Buffer.end(), chg());
     std::vector<std::vector<double> > matrix(Buffer.size() - 1);
     for (auto i = Buffer.begin() + 1, end = Buffer.end(), Tmp = matrix.begin(); i != end; ++i)
-    copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
+        copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
     return *first->begin() * Determinant(matrix);
 }
 
