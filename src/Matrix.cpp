@@ -139,6 +139,11 @@ Matrix Matrix::Inv() {
     Matrix ret(_i, _j);
     auto det = Det();
 
+    if(_i == 1){
+        ret[0][0] = 1/det;
+        return ret;
+    }
+
     for(size_t x = 0; x < _i; ++x){
         for(size_t y = 0; y < _j; ++y){
             Matrix minor(_i-1, _j-1);
