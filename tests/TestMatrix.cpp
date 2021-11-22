@@ -47,10 +47,96 @@ TEST(matrix, matrix_diff) {
     ASSERT_EQ((m1 - m2), res);
 }
 
+TEST(matrix, multiplication) {
+    Matrix m1(2, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 3;
+    m1[1][0] = 2;
+    m1[1][1] = 4;
+
+    Matrix m2(2, 2);
+    m2[0][0] = 4;
+    m2[0][1] = 2;
+    m2[1][0] = 3;
+    m2[1][1] = 1;
+
+    Matrix res(2, 2);
+    res[0][0] = 8;
+    res[0][1] = 20;
+    res[1][0] = 5;
+    res[1][1] = 13;
+
+    ASSERT_EQ(m1 * m2, res);
+}
+
+TEST(matrix, inverse) {
+    Matrix m1(2, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[1][0] = 3;
+    m1[1][1] = 4;
+
+    Matrix inv = m1.Inv();
+
+    Matrix E(2, 2);
+    E[0][0] = 1;
+    E[0][1] = 0;
+    E[1][0] = 0;
+    E[1][1] = 1;
+
+    ASSERT_EQ(m1 * inv, E);
+}
+
 TEST(matrix, wrong_dimensions) {
+    // Test of errors caused by arithmetical operations
+    // with matrix of non-matching dimensions.
     Matrix m1(1, 1);
     Matrix m2(1, 2);
-    Matrix res = m1 + m2;
+    ASSERT_DEATH({
+        Matrix res = m1 + m2;
+        }, "Invalid dimensions");
+    ASSERT_DEATH({
+        Matrix res = m1 - m2;
+        }, "Invalid dimensions");
+    ASSERT_DEATH({
+        Matrix res = m2 * m1;
+        }, "Invalid dimensions");
+}
+
+TEST(matrix, determinant) {
+    Matrix m1(2, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[1][0] = 3;
+    m1[1][1] = 4;
+
+    ASSERT_EQ(m1.Det(), (1*4 - 2*3));
+
+    Matrix m3(3, 3);
+    m3[0][0] = 1;
+    m3[0][1] = 2;
+    m3[0][2] = 3;
+    m3[1][0] = 3;
+    m3[1][1] = 4;
+    m3[1][2] = 5;
+    m3[2][0] = 5;
+    m3[2][1] = 6;
+    m3[2][2] = 7;
+
+    ASSERT_EQ(m3.Det(), 0);
+}
+
+TEST(matrix, non_square_det) {
+    // Test of errors caused by calculation
+    // of determinant of non-square matrix.
+    Matrix m(2, 3);
+    ASSERT_DEATH({
+        double d = m.Det();
+        }, "Invalid dimensions");
+    Matrix j(3, 2);
+    ASSERT_DEATH({
+        double d = j.Det();
+        }, "Invalid dimensions");
 }
 
 
