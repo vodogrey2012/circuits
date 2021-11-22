@@ -76,6 +76,31 @@ TEST(matrix, matrix_diff) {
     Matrix res(1, 1);
     res[0][0] = 2;
     ASSERT_EQ((m1 - m2), res);
+
+    Matrix m3(2, 3);
+    m3[0][0] = 1;
+    m3[0][1] = 2;
+    m3[2][0] = 2;
+    m3[1][0] = 3;
+    m3[1][1] = 3;
+    m3[2][1] = 4;
+
+
+    Matrix m4(2, 3);
+    m4[0][0] = 0;
+    m4[0][1] = 1;
+    m4[2][0] = 1;
+    m4[1][0] = 2;
+    m4[1][1] = 2;
+    m4[2][1] = 3;
+
+    Matrix r = m3 - m4;
+
+    for (int i = 0; i < 2; i ++) {
+        for (int j = 0; j < 3; j ++) {
+            ASSERT_EQ(r[i][j], 1);
+        }
+    }
 }
 
 TEST(matrix, multiplication) {

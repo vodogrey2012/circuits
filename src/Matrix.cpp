@@ -35,7 +35,7 @@ Matrix operator-(const Matrix &m1, const Matrix &m2) {
     assert(m1.GetXDem() == m2.GetXDem() && m1.GetYDem() == m2.GetYDem() && "Invalid dimensions for - operation");
     Matrix res(m1.GetXDem(), m1.GetYDem());
     for(int x = 0; x < m1.GetXDem(); ++x)
-        for(int y = 0; y < m1.GetXDem(); ++y)
+        for(int y = 0; y < m1.GetYDem(); ++y)
             res[x][y] = m1[x][y] - m2[x][y];
     return res;
 }
