@@ -111,6 +111,30 @@ TEST(matrix, matrix_diff) {
     ASSERT_EQ(r.GetJDem(), 3);
 }
 
+TEST(matrix, matrix_transpose) {
+    Matrix m1(2, 3);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[0][2] = 3;
+    m1[1][0] = 4;
+    m1[1][1] = 5;
+    m1[1][2] = 6;
+
+    Matrix exp(3, 2);
+    exp[0][0] = 1;
+    exp[0][1] = 4;
+    exp[1][0] = 2;
+    exp[1][1] = 5;
+    exp[2][0] = 3;
+    exp[2][1] = 6;
+
+    auto res = m1.Transponse();
+
+    ASSERT_EQ(res, exp);
+    ASSERT_EQ(res.GetIDem(), exp.GetIDem());
+    ASSERT_EQ(res.GetJDem(), exp.GetJDem());
+}
+
 TEST(matrix, multiplication) {
     Matrix m1(2, 2);
     m1[0][0] = 1;

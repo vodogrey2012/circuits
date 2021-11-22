@@ -70,7 +70,7 @@ Matrix Matrix::Transponse() {
     Matrix ret(_j, _i);
     for(int x = 0; x < _i; ++x)
         for(int y = 0; y < _j; ++y)
-            ret[x][y] = _matrix[y][x];
+            ret[y][x] = _matrix[x][y];
     return ret;
 }
 
