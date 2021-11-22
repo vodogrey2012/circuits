@@ -36,7 +36,7 @@ Matrix operator-(const Matrix &m1, const Matrix &m2) {
     Matrix res(m1.GetXDem(), m1.GetYDem());
     for(int x = 0; x < m1.GetXDem(); ++x)
         for(int y = 0; y < m1.GetXDem(); ++y)
-            res[x][y] = m1[x][y] + m2[x][y];
+            res[x][y] = m1[x][y] - m2[x][y];
     return res;
 }
 
