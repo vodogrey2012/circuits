@@ -32,18 +32,18 @@ TEST(matrix, matrix_dims) {
 }
 
 TEST(matrix, matrix_sum) {
-    Matrix<double> m1(1, 1);
+    Matrix<int> m1(1, 1);
     m1[0][0] = 1;
-    Matrix<double> m2(1, 1);
+    Matrix<int> m2(1, 1);
     m2[0][0] = 2;
 
-    Matrix<double> res(1, 1);
+    Matrix<int> res(1, 1);
     res[0][0] = 3;
     ASSERT_EQ((m1 + m2), res);
     ASSERT_EQ((m1 - m2).GetIDem(), 1);
     ASSERT_EQ((m1 - m2).GetJDem(), 1);
 
-    Matrix<double> m3(2, 3);
+    Matrix<int> m3(2, 3);
     m3[0][0] = 1;
     m3[1][0] = 2;
     m3[0][2] = 2;
@@ -51,8 +51,7 @@ TEST(matrix, matrix_sum) {
     m3[1][1] = 4;
     m3[1][2] = 1;
 
-
-    Matrix<double> m4(2, 3);
+    Matrix<int> m4(2, 3);
     m4[0][0] = 4;
     m4[1][0] = 3;
     m4[0][2] = 3;
@@ -60,7 +59,7 @@ TEST(matrix, matrix_sum) {
     m4[1][1] = 1;
     m4[1][2] = 4;
 
-    Matrix<double> r = m3 + m4;
+    Matrix<int> r = m3 + m4;
     for (int i = 0; i < 2; i ++) {
         for (int j = 0; j < 3; j ++) {
             ASSERT_EQ(r[i][j], 5);
@@ -68,6 +67,24 @@ TEST(matrix, matrix_sum) {
     }
     ASSERT_EQ(r.GetIDem(), 2);
     ASSERT_EQ(r.GetJDem(), 3);
+
+    Matrix<double> m5(2, 2);
+    m5[0][0] = 6.5;
+    m5[0][1] = 2.2;
+    m5[1][0] = 3.5;
+    m5[1][1] = 4.1;
+    Matrix<double> m6(2, 2);
+    m6[0][0] = 1.3;
+    m6[0][1] = 1.2;
+    m6[1][0] = 0.5;
+    m6[1][1] = 3.1;
+
+    ASSERT_DOUBLE_EQ((m5+m6)[0][0], 7.8);
+    ASSERT_DOUBLE_EQ((m5+m6)[0][1], 3.4);
+    ASSERT_DOUBLE_EQ((m5+m6)[1][0], 4.0);
+    ASSERT_DOUBLE_EQ((m5+m6)[1][1], 7.2);
+    ASSERT_EQ((m5+m6).GetIDem(), 2);
+    ASSERT_EQ((m5+m6).GetJDem(), 2);
 }
 
 TEST(matrix, matrix_diff) {
@@ -296,6 +313,13 @@ TEST(matrix, determinant) {
     m3[2][2] = 7;
 
     ASSERT_EQ(m3.Det(), 0);
+
+    Matrix<double> m4(2, 2);
+    m3[0][0] = 6.5;
+    m3[0][1] = 2.2;
+    m3[1][0] = 3.5;
+    m3[1][1] = 4.1;
+    ASSERT_EQ(m4.Det(), 18.95);
 }
 
 TEST(matrix, non_square_det) {
