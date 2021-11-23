@@ -29,7 +29,7 @@ void CircuitActive::FindMaxTree() {
     }
 }
 
-void CircuitActive::CalcMatrix(Matrix& C, Matrix& Z, Matrix& E) {
+void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E) {
     for(size_t i = 0; i < E.GetIDem(); ++i){
         Z[i][i] = _wires[i].GetR();
     }
@@ -56,16 +56,16 @@ void CircuitActive::CalcMatrix(Matrix& C, Matrix& Z, Matrix& E) {
 }
 
 void CircuitActive::FindMeshCurrents() {
-    Matrix C(_wremoved.size(), _wires.size());
-    Matrix Z(_wires.size(), _wires.size());
-    Matrix E(_wires.size(), 1);
+    Matrix<int>    C(_wremoved.size(), _wires.size());
+    Matrix<double> Z(_wires.size(), _wires.size());
+    Matrix<double> E(_wires.size(), 1);
     CalcMatrix(C, Z, E);
 
-    std::cout << C << std::endl;
-    std::cout << Z << std::endl;
-    std::cout << E << std::endl;
+    //std::cout << C << std::endl;
+    //std::cout << Z << std::endl;
+    //std::cout << E << std::endl;
 
-    auto res = (C*Z*C.Transponse()).Inv()*C*E;
+    auto res = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse())).Inv()*Matrix<double>(C)*E;
     for(size_t i = 0; i < res.GetIDem(); ++i)
         _no_mono_paths[i].second = res[i][0];
 

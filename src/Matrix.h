@@ -5,35 +5,212 @@
 #ifndef CIRCUITS_MATRIX_H
 #define CIRCUITS_MATRIX_H
 
+#include <algorithm>
 #include <vector>
 #include <cassert>
+#include <iostream>
+#include <typeinfo>
+#include <typeindex>
 
+template <typename T>
 class Matrix {
 public:
-    Matrix(int i, int j);
+    Matrix(int i, int j){
+        _i = i;
+        _j = j;
+        _matrix.resize(i);
+        for(auto & it : _matrix )
+            it.resize(j);
+    }
+
     ~Matrix()= default;
-    int GetIDem() const;
-    int GetJDem() const;
+    int GetIDem() const{
+        return _i;
+    }
+
+    int GetJDem() const{
+        return _j;
+    }
+
+    Matrix<T> Transponse(){
+        Matrix<T> ret(_j, _i);
+        for(int x = 0; x < _i; ++x)
+            for(int y = 0; y < _j; ++y)
+                ret[y][x] = _matrix[x][y];
+        return ret;
+    }
+
+    T Det(){
+        assert(_i == _j && "Invalid dimensions for Det operation");
+        auto save = _matrix;
+        return Determinant(save);
+    }
+
+    Matrix Inv(){
+        assert(_i == _j && "Invalid dimensions for Inv operation");
+        Matrix<T> ret(_i, _j);
+        auto det = Det();
+
+        if(_i == 1){
+            ret[0][0] = 1/det;
+            return ret;
+        }
+
+        for(size_t x = 0; x < _i; ++x){
+            for(size_t y = 0; y < _j; ++y){
+                Matrix<T> minor(_i-1, _j-1);
+                for(size_t xx = 0; xx < _i-1; ++xx){
+                    for(size_t yy = 0; yy < _j-1; ++yy) {
+                        minor[xx][yy] = _matrix[xx < x ? xx : xx+1][yy < y ? yy : yy+1];
+                    }
+                }
+                auto minor_det = minor.Det();
+                if((x+y)%2 == 1)
+                    minor_det *= -1.0;
+                ret[y][x] = minor_det/det;
+            }
+        }
+        return ret;
+    }
+
+private:
+    class nulled : public std::unary_function<std::vector<T>, bool> {
+    public:
+        bool operator() (const std::vector<T>& Buffer) {
+            return !(*Buffer.begin());
+        }
+    };
+
+    class chg : public std::binary_function<std::vector<T>, std::vector<T>, bool> {
+    public:
+        bool operator()(const std::vector<T>& Buffer1, const std::vector<T>& Buffer2) {
+            return *Buffer1.begin() > *Buffer2.begin();
+        }
+    };
+
+    class chg2 : public std::binary_function<std::vector<T>, std::vector<T>, bool> {
+    public:
+        bool operator()(const std::vector<T>& Buffer1, const std::vector<T>& Buffer2) {
+            return *Buffer1.begin() < *Buffer2.begin();
+        }
+    };
+
+    T Determinant(std::vector<std::vector<T> >& Buffer){
+        sort(Buffer.begin(), Buffer.end(), chg2());
+        if (std::all_of(Buffer.begin(), Buffer.end(), nulled()))
+            return 0;
+        auto first = Buffer.begin();
+        if (Buffer.size() == 1)
+            return *first->begin();
+        for (auto i = Buffer.begin() + 1, end = Buffer.end(); i != end; ++i)
+        {
+            T TMP = *i->begin() / *first->begin();
+            std::transform(first->begin(), first->end(), i->begin(), i->begin(),
+                           [&TMP](const T& value1, const T& value2)->T
+                           {
+                               return value2 - value1 * TMP;
+                           });
+        }
+        sort(Buffer.begin() + 1, Buffer.end(), chg());
+        std::vector<std::vector<T> > matrix(Buffer.size() - 1);
+        for (auto i = Buffer.begin() + 1, end = Buffer.end(), Tmp = matrix.begin(); i != end; ++i)
+            copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
+        return *first->begin() * Determinant(matrix);
+    }
 
 public:
-    std::vector<double>& operator[](int n);
-    const std::vector<double>& operator[](int n) const;
-    Matrix Transponse();
-    double Det();
-    Matrix Inv();
-    friend Matrix operator+(const Matrix& m1, const Matrix& m2);
-    friend Matrix operator-(const Matrix& m1, const Matrix& m2);
-    friend Matrix operator*(const Matrix& m1, const Matrix& m2);
-    friend Matrix operator*(const Matrix &m1, const double &factor);
-    friend bool operator==(const Matrix& m1, const Matrix& m2);
-    friend bool operator!=(const Matrix& m1, const Matrix& m2);
-    friend std::ostream& operator<<(std::ostream& os, const Matrix& m);
-    Matrix operator=(const Matrix& m1);
+    std::vector<T> & operator[](int n){
+        return _matrix[n];
+    }
+
+    const std::vector<T> & operator[](int n) const{
+        return _matrix[n];
+    }
+
+    friend Matrix<T> operator+(const Matrix<T> & m1, const Matrix<T> & m2){
+        assert(m1.GetIDem() == m2.GetIDem() && m1.GetJDem() == m2.GetJDem() && "Invalid dimensions for + operation");
+        Matrix<T> res(m1.GetIDem(), m1.GetJDem());
+        for(int x = 0; x < res.GetIDem(); ++x)
+            for(int y = 0; y < m1.GetJDem(); ++y)
+                res[x][y] = m1[x][y] + m2[x][y];
+        return res;
+    };
+
+    friend Matrix<T> operator-(const Matrix<T> & m1, const Matrix<T> & m2){
+        assert(m1.GetIDem() == m2.GetIDem() && m1.GetJDem() == m2.GetJDem() && "Invalid dimensions for - operation");
+        Matrix<T> res(m1.GetIDem(), m1.GetJDem());
+        for(int x = 0; x < res.GetIDem(); ++x)
+            for(int y = 0; y < res.GetJDem(); ++y)
+                res[x][y] = m1[x][y] - m2[x][y];
+        return res;
+    }
+
+    friend Matrix<T> operator*(const Matrix<T> & m1, const Matrix<T> & m2){
+        assert(m2.GetIDem() == m1.GetJDem() && "Invalid dimensions for * operation");
+        Matrix<T> res(m1.GetIDem(), m2.GetJDem());
+        for(int x = 0; x < m1.GetIDem(); ++x)
+            for(int y = 0; y < m2.GetJDem(); ++y)
+                for(int z = 0; z < m1.GetJDem(); ++z){
+                    res[x][y] += m1[x][z]*m2[z][y];
+                    }
+        return res;
+    }
+
+    template <typename N>
+    friend Matrix<T> operator*(const Matrix<T> & m1, const N & factor){
+        Matrix<T> res(m1.GetIDem(), m1.GetJDem());
+        for(int x = 0; x < m1.GetIDem(); ++x)
+            for(int y = 0; y < m1.GetJDem(); ++y)
+                res[x][y] = m1[x][y]*factor;
+        return res;
+    }
+
+    template <typename N>
+    operator Matrix<N>() {
+        Matrix<N> res(_i, _j);
+        for (int x = 0; x < _i; ++x)
+            for (int y = 0; y < _j; ++y)
+                res[x][y] = N(_matrix[x][y]);
+        return res;
+    }
+
+    friend bool operator==(const Matrix<T> & m1, const Matrix<T> & m2){
+        for (size_t i = 0; i < m1.GetIDem(); ++i) {
+            for (size_t j = 0; j < m1.GetJDem(); ++j) {
+                if (m1[i][j] != m2[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    friend bool operator!=(const Matrix<T> & m1, const Matrix<T> & m2){
+        return !(m1 == m2);
+    }
+
+    friend std::ostream & operator<<(std::ostream & os, const Matrix<T> & m){
+        for(size_t i = 0; i < m.GetIDem(); ++i){
+            for(size_t j = 0; j < m.GetJDem(); ++j){
+                os << m[i][j] << "\t|";
+            }
+            os << std::endl;
+        }
+        return os;
+    }
+
+    Matrix<T> operator=(const Matrix<T> & m1){
+        Matrix<T> res(m1.GetIDem(), m1.GetJDem());
+        for (int x = 0; x < m1.GetIDem(); ++x)
+            for (int y = 0; y < m1.GetJDem(); ++y)
+                res[x][y] = m1[x][y];
+        return res;
+    }
+
 private:
     int _i;
     int _j;
-    std::vector<std::vector<double>> _matrix;
-    double Determinant(std::vector<std::vector<double> >& Buffer);
+    std::vector<std::vector<T>> _matrix;
 };
 
 

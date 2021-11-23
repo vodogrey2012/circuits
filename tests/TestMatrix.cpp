@@ -6,13 +6,13 @@
 #include "../src/Matrix.h"
 
 TEST(matrix, matrix_equality) {
-    Matrix m1(2, 2);
+    Matrix<double> m1(2, 2);
     m1[0][0] = 1;
     m1[0][1] = 2;
     m1[1][0] = 3;
     m1[1][1] = 4;
 
-    Matrix m2(2, 2);
+    Matrix<double> m2(2, 2);
     m2[0][0] = 1;
     m2[0][1] = 2;
     m2[1][0] = 3;
@@ -26,24 +26,24 @@ TEST(matrix, matrix_equality) {
 }
 
 TEST(matrix, matrix_dims) {
-    Matrix m1(4, 5);
+    Matrix<double> m1(4, 5);
     ASSERT_EQ(m1.GetIDem(), 4);
     ASSERT_EQ(m1.GetJDem(), 5);
 }
 
 TEST(matrix, matrix_sum) {
-    Matrix m1(1, 1);
+    Matrix<double> m1(1, 1);
     m1[0][0] = 1;
-    Matrix m2(1, 1);
+    Matrix<double> m2(1, 1);
     m2[0][0] = 2;
 
-    Matrix res(1, 1);
+    Matrix<double> res(1, 1);
     res[0][0] = 3;
     ASSERT_EQ((m1 + m2), res);
     ASSERT_EQ((m1 - m2).GetIDem(), 1);
     ASSERT_EQ((m1 - m2).GetJDem(), 1);
 
-    Matrix m3(2, 3);
+    Matrix<double> m3(2, 3);
     m3[0][0] = 1;
     m3[1][0] = 2;
     m3[0][2] = 2;
@@ -52,7 +52,7 @@ TEST(matrix, matrix_sum) {
     m3[1][2] = 1;
 
 
-    Matrix m4(2, 3);
+    Matrix<double> m4(2, 3);
     m4[0][0] = 4;
     m4[1][0] = 3;
     m4[0][2] = 3;
@@ -60,8 +60,7 @@ TEST(matrix, matrix_sum) {
     m4[1][1] = 1;
     m4[1][2] = 4;
 
-    Matrix r = m3 + m4;
-    std::cout << r << std::endl;
+    Matrix<double> r = m3 + m4;
     for (int i = 0; i < 2; i ++) {
         for (int j = 0; j < 3; j ++) {
             ASSERT_EQ(r[i][j], 5);
@@ -72,18 +71,18 @@ TEST(matrix, matrix_sum) {
 }
 
 TEST(matrix, matrix_diff) {
-    Matrix m1(1, 1);
+    Matrix<double> m1(1, 1);
     m1[0][0] = 3;
-    Matrix m2(1, 1);
+    Matrix<double> m2(1, 1);
     m2[0][0] = 1;
 
-    Matrix res(1, 1);
+    Matrix<double> res(1, 1);
     res[0][0] = 2;
     ASSERT_EQ((m1 - m2), res);
     ASSERT_EQ((m1 - m2).GetIDem(), 1);
     ASSERT_EQ((m1 - m2).GetJDem(), 1);
 
-    Matrix m3(2, 3);
+    Matrix<double> m3(2, 3);
     m3[0][0] = 1;
     m3[1][0] = 2;
     m3[0][2] = 2;
@@ -92,7 +91,7 @@ TEST(matrix, matrix_diff) {
     m3[1][2] = 4;
 
 
-    Matrix m4(2, 3);
+    Matrix<double> m4(2, 3);
     m4[0][0] = 0;
     m4[1][0] = 1;
     m4[0][2] = 1;
@@ -100,7 +99,7 @@ TEST(matrix, matrix_diff) {
     m4[1][1] = 2;
     m4[1][2] = 3;
 
-    Matrix r = m3 - m4;
+    Matrix<double> r = m3 - m4;
 
     for (int i = 0; i < 2; i ++) {
         for (int j = 0; j < 3; j ++) {
@@ -112,7 +111,7 @@ TEST(matrix, matrix_diff) {
 }
 
 TEST(matrix, matrix_transpose) {
-    Matrix m1(2, 3);
+    Matrix<double> m1(2, 3);
     m1[0][0] = 1;
     m1[0][1] = 2;
     m1[0][2] = 3;
@@ -120,7 +119,7 @@ TEST(matrix, matrix_transpose) {
     m1[1][1] = 5;
     m1[1][2] = 6;
 
-    Matrix exp(3, 2);
+    Matrix<double> exp(3, 2);
     exp[0][0] = 1;
     exp[0][1] = 4;
     exp[1][0] = 2;
@@ -136,19 +135,19 @@ TEST(matrix, matrix_transpose) {
 }
 
 TEST(matrix, multiplication) {
-    Matrix m1(2, 2);
+    Matrix<double> m1(2, 2);
     m1[0][0] = 1;
     m1[0][1] = 3;
     m1[1][0] = 2;
     m1[1][1] = 4;
 
-    Matrix m2(2, 2);
+    Matrix<double> m2(2, 2);
     m2[0][0] = 4;
     m2[0][1] = 2;
     m2[1][0] = 3;
     m2[1][1] = 1;
 
-    Matrix res(2, 2);
+    Matrix<double> res(2, 2);
     res[0][0] = 13;
     res[0][1] = 5;
     res[1][0] = 20;
@@ -158,21 +157,21 @@ TEST(matrix, multiplication) {
     ASSERT_EQ((m1 * m2).GetIDem(), 2);
     ASSERT_EQ((m1 * m2).GetJDem(), 2);
 
-    Matrix m3(1, 5);
+    Matrix<double> m3(1, 5);
     m3[0][0] = 1;
     m3[0][1] = 2;
     m3[0][2] = 3;
     m3[0][3] = 4;
     m3[0][4] = 5;
 
-    Matrix m4(5, 1);
+    Matrix<double> m4(5, 1);
     m4[0][0] = 5;
     m4[1][0] = 4;
     m4[2][0] = 3;
     m4[3][0] = 2;
     m4[4][0] = 1;
 
-    res = Matrix(1, 1);
+    res = Matrix<double>(1, 1);
     res[0][0] = 35;
 
     ASSERT_EQ(m3 * m4, res);
@@ -182,13 +181,13 @@ TEST(matrix, multiplication) {
 }
 
 TEST(matrix, factor_multiplication) {
-    Matrix m1(2, 2);
+    Matrix<double> m1(2, 2);
     m1[0][0] = 2;
     m1[0][1] = 3;
     m1[1][0] = 2;
     m1[1][1] = 4;
 
-    Matrix res = m1 * 2.5;
+    Matrix<double> res = m1 * 2.5;
     // Matrix m1 has not changed:
     ASSERT_EQ(m1[0][0], 2);
     // Elements of matrix res:
@@ -199,14 +198,14 @@ TEST(matrix, factor_multiplication) {
     ASSERT_EQ(res.GetIDem(), 2);
     ASSERT_EQ(res.GetJDem(), 2);
 
-    Matrix m2(1, 5);
+    Matrix<double> m2(1, 5);
     m2[0][0] = 1;
     m2[0][1] = 2;
     m2[0][2] = 3;
     m2[0][3] = 4;
     m2[0][4] = 5;
 
-    Matrix res1 = m2 * -2.0;
+    Matrix<double> res1 = m2 * -2.0;
     ASSERT_EQ(res1[0][0], -2);
     ASSERT_EQ(res1[0][1], -4);
     ASSERT_EQ(res1[0][2], -6);
@@ -218,15 +217,15 @@ TEST(matrix, factor_multiplication) {
 }
 
 TEST(matrix, inverse) {
-    Matrix m1(2, 2);
+    Matrix<double> m1(2, 2);
     m1[0][0] = 1;
     m1[0][1] = 2;
     m1[1][0] = 3;
     m1[1][1] = 4;
 
-    Matrix inv = m1.Inv();
+    Matrix<double> inv = m1.Inv();
 
-    Matrix E(2, 2);
+    Matrix<double> E(2, 2);
     E[0][0] = 1;
     E[0][1] = 0;
     E[1][0] = 0;
@@ -240,21 +239,21 @@ TEST(matrix, inverse) {
 TEST(matrix, wrong_dimensions) {
     // Test of errors caused by arithmetical operations
     // with matrix of non-matching dimensions.
-    Matrix m1(1, 1);
-    Matrix m2(1, 2);
+    Matrix<double> m1(1, 1);
+    Matrix<double> m2(1, 2);
     ASSERT_DEATH({
-        Matrix res = m1 + m2;
+        Matrix<double> res = m1 + m2;
         }, "Invalid dimensions");
     ASSERT_DEATH({
-        Matrix res = m1 - m2;
+        Matrix<double> res = m1 - m2;
         }, "Invalid dimensions");
     ASSERT_DEATH({
-        Matrix res = m2 * m1;
+        Matrix<double> res = m2 * m1;
         }, "Invalid dimensions");
 }
 
 TEST(matrix, determinant) {
-    Matrix m1(2, 2);
+    Matrix<double> m1(2, 2);
     m1[0][0] = 1;
     m1[0][1] = 2;
     m1[1][0] = 3;
@@ -262,7 +261,7 @@ TEST(matrix, determinant) {
 
     ASSERT_EQ(m1.Det(), (1*4 - 2*3));
 
-    Matrix m3(3, 3);
+    Matrix<double> m3(3, 3);
     m3[0][0] = 1;
     m3[0][1] = 2;
     m3[0][2] = 3;
@@ -279,16 +278,33 @@ TEST(matrix, determinant) {
 TEST(matrix, non_square_det) {
     // Test of errors caused by calculation
     // of determinant of non-square matrix.
-    Matrix m(2, 3);
+    Matrix<double> m(2, 3);
     ASSERT_DEATH({
         double d = m.Det();
         }, "Invalid dimensions");
-    Matrix j(3, 2);
+    Matrix<double> j(3, 2);
     ASSERT_DEATH({
         double d = j.Det();
         }, "Invalid dimensions");
 }
 
+TEST(matrix, matrix_casting) {
+    Matrix<int> m1(2, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[1][0] = 3;
+    m1[1][1] = 4;
+
+    Matrix<double> m2 = Matrix<double>(m1);
+
+    Matrix<double> exp(2, 2);
+    exp[0][0] = 1;
+    exp[0][1] = 2;
+    exp[1][0] = 3;
+    exp[1][1] = 4;
+
+    ASSERT_EQ(m2, exp);
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

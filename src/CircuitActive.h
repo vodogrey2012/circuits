@@ -15,7 +15,7 @@ public:
 private:
     void FindMaxTree();
     bool IsMonoTree();
-    void CalcMatrix(Matrix& C, Matrix& Z, Matrix& E);
+    void CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E);
     void FindMeshCurrents();
     void FindCurrentsFromMesh();
     std::vector<int> FindNoMonoTreePath(Wire start);
