@@ -8,10 +8,14 @@
 #include "Circuit.h"
 #include "Matrix.h"
 #include <deque>
+#include <fstream>
+#include <string>
+#include <regex>
 
 class CircuitActive : public Circuit{
 public:
     double FindCurrent(int i1, int i2);
+    void ReadFromFile(const std::string& filename);
 private:
     void FindMaxTree();
     bool IsMonoTree();

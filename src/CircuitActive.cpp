@@ -147,3 +147,46 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
 
     return ret;
 }
+
+void CircuitActive::ReadFromFile(const std::string& filename){
+    std::ifstream t(filename);
+    if(!t){
+        std::cerr << "Given circuit-file doesn't exist." << std::endl;
+        exit(-1);
+    }
+
+    std::stringstream ss;
+    ss << t.rdbuf();
+    std::string s = ss.str();
+
+    std::string point1("(\\d+)");
+    std::string point2("(\\d+)");
+    std::string resist("(\\d+(?:\\.\\d+)?)");
+    std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*;)?");
+
+    std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist + "\\s*;\\s*" + opteds);
+    auto words_begin =
+            std::sregex_iterator(s.begin(), s.end(), word_regex);
+    auto words_end = std::sregex_iterator();
+
+    if(words_begin == words_end){
+        std::cerr << "Incorrect input file format." << std::endl;
+        exit(-1);
+    }
+
+    for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+        std::smatch match = *i;
+
+        int index1 = std::stoi(match[1]);
+        int index2 = std::stoi(match[2]);
+        double r = std::stof(match[3]);
+        double e;
+        if(match[4].str().length() != 0)
+            e = std::stod(match[4].str());
+        else
+            e = 0;
+        this->AddWire(Wire(index1, index2, r, e));
+    }
+}
+
+
