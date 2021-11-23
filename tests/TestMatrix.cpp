@@ -240,17 +240,14 @@ TEST(matrix, inverse) {
     m1[1][0] = 3;
     m1[1][1] = 4;
 
-    Matrix<double> inv = m1.Inv();
+    auto res = m1 * m1.Inv();
+    ASSERT_DOUBLE_EQ(res[0][0], 1);
+    ASSERT_DOUBLE_EQ(res[0][1], 0);
+    ASSERT_DOUBLE_EQ(res[1][0], 0);
+    ASSERT_DOUBLE_EQ(res[1][1], 1);
 
-    Matrix<double> E(2, 2);
-    E[0][0] = 1;
-    E[0][1] = 0;
-    E[1][0] = 0;
-    E[1][1] = 1;
-
-    ASSERT_EQ(m1 * inv, E);
-    ASSERT_EQ(inv.GetIDem(), 2);
-    ASSERT_EQ(inv.GetJDem(), 2);
+    ASSERT_EQ(m1.Inv().GetIDem(), 2);
+    ASSERT_EQ(m1.Inv().GetJDem(), 2);
 
     Matrix<double> m3(2, 2);
     m3[0][0] = 6.5;
@@ -259,19 +256,22 @@ TEST(matrix, inverse) {
     m3[1][1] = 4.1;
 
     Matrix<double> ref(2, 2);
-    ref[0][0] = 0.22;
-    ref[0][1] = -0.12;
-    ref[1][0] = -0.18;
-    ref[1][1] = 0.34;
+    ref[0][0] = 0.21636;
+    ref[0][1] = -0.11610;
+    ref[1][0] = -0.18470;
+    ref[1][1] = 0.34301;
 
     Matrix<double> inv_d = m3.Inv();
-    ASSERT_LT(abs(inv_d[0][0] - ref[0][0]), 0.01);
-    ASSERT_LT(abs(inv_d[0][1] - ref[0][1]), 0.01);
-    ASSERT_LT(abs(inv_d[1][0] - ref[1][0]), 0.01);
-    ASSERT_LT(abs(inv_d[1][1] - ref[1][1]), 0.01);
+    EXPECT_NEAR(inv_d[0][0], ref[0][0], 0.00001);
+    EXPECT_NEAR(inv_d[0][1], ref[0][1], 0.00001);
+    EXPECT_NEAR(inv_d[1][0], ref[1][0], 0.00001);
+    EXPECT_NEAR(inv_d[1][1], ref[1][1], 0.00001);
 
-    E = E * 1.0;
-    ASSERT_EQ(m3 * inv_d, E);
+    auto res1 = m3 * inv_d;
+    EXPECT_NEAR(res1[0][0], 1, 0.00001);
+    EXPECT_NEAR(res1[0][1], 0, 0.00001);
+    EXPECT_NEAR(res1[1][0], 0, 0.00001);
+    EXPECT_NEAR(res1[1][1], 1, 0.00001);
     ASSERT_EQ(inv_d.GetIDem(), 2);
     ASSERT_EQ(inv_d.GetJDem(), 2);
 }

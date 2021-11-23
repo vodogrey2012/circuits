@@ -40,7 +40,7 @@ public:
         return ret;
     }
 
-    T Det(){
+    T Det() const {
         assert(_i == _j && "Invalid dimensions for Det operation");
         auto save = _matrix;
         return Determinant(save);
@@ -74,47 +74,23 @@ public:
     }
 
 private:
-    class nulled : public std::unary_function<std::vector<T>, bool> {
-    public:
-        bool operator() (const std::vector<T>& Buffer) {
-            return !(*Buffer.begin());
-        }
-    };
-
-    class chg : public std::binary_function<std::vector<T>, std::vector<T>, bool> {
-    public:
-        bool operator()(const std::vector<T>& Buffer1, const std::vector<T>& Buffer2) {
-            return *Buffer1.begin() > *Buffer2.begin();
-        }
-    };
-
-    class chg2 : public std::binary_function<std::vector<T>, std::vector<T>, bool> {
-    public:
-        bool operator()(const std::vector<T>& Buffer1, const std::vector<T>& Buffer2) {
-            return *Buffer1.begin() < *Buffer2.begin();
-        }
-    };
-
-    T Determinant(std::vector<std::vector<T> >& Buffer){
-        sort(Buffer.begin(), Buffer.end(), chg2());
-        if (std::all_of(Buffer.begin(), Buffer.end(), nulled()))
+    T Determinant(std::vector<std::vector<T> >& Buffer) const {
+        if (std::all_of(Buffer.begin(), Buffer.end(),
+                        [](std::vector<T> & p1) { return *p1.begin() == 0; }))
             return 0;
         auto first = Buffer.begin();
         if (Buffer.size() == 1)
             return *first->begin();
-        for (auto i = Buffer.begin() + 1, end = Buffer.end(); i != end; ++i)
-        {
+        for (auto i = Buffer.begin() + 1, end = Buffer.end(); i != end; ++i) {
             T TMP = *i->begin() / *first->begin();
             std::transform(first->begin(), first->end(), i->begin(), i->begin(),
-                           [&TMP](const T& value1, const T& value2)->T
-                           {
+                           [&TMP](const T& value1, const T& value2)->T {
                                return value2 - value1 * TMP;
                            });
         }
-        sort(Buffer.begin() + 1, Buffer.end(), chg());
         std::vector<std::vector<T> > matrix(Buffer.size() - 1);
         for (auto i = Buffer.begin() + 1, end = Buffer.end(), Tmp = matrix.begin(); i != end; ++i)
-            copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
+            std::copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
         return *first->begin() * Determinant(matrix);
     }
 
