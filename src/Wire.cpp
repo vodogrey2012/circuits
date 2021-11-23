@@ -8,7 +8,7 @@ Wire::Wire(int index1, int index2, double r, double e){
     _index1 = index1;
     _index2 = index2;
     _r = r;
-    _e = index2 > index1 ? -1.0*e : e;
+    _e = e;
 }
 
 Wire::Wire(double r, double e){
@@ -23,14 +23,14 @@ double Wire::GetE()        const   {   return _e;     }
 void Wire::SetIndex1(int index1)   { _index1 = index1;}
 void Wire::SetIndex2(int index2)   { _index2 = index2;}
 void Wire::SetR(double r)          { _r = r;}
-void Wire::SetE(double e)          { _e = _index2 > _index1 ? -1.0 * e : e;}
+void Wire::SetE(double e)          { _e = e;}
 
 bool Wire::IsExcluded() const {
-    return _is_exluded;
+    return _is_excluded;
 }
 
 void Wire::SetExcluded(bool ex) {
-    _is_exluded = ex;
+    _is_excluded = ex;
 }
 
 void Wire::SetI(double i) {

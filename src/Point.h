@@ -16,16 +16,15 @@ public:
     explicit Point(int index);
     explicit Point(int index, Point* point, Wire* wire);
     Wire GetWireByIndex(int index2);
+    Point GetPointByIndex(int index2);
     std::vector<pPElement> GetAllElements();
     void RemoveElementByIndex(int index2);
+    void ResetConnections();
     void AddElement(Point* point, Wire* wire);
-    void AddOptIndex(int opt_index);
-    bool Optimize();
     int GetIndex() const;
 private:
     int _index;
     std::vector<pPElement> _pw_elements;
-    std::vector<int> _opt_index;
 };
 
 

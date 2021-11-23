@@ -5,6 +5,7 @@
 #include "CircuitActive.h"
 
 double CircuitActive::FindCurrent(int i1, int i2) {
+    TreePreproc();
     FindMaxTree();
     FindMeshCurrents();
     FindCurrentsFromMesh();
@@ -189,4 +190,40 @@ void CircuitActive::ReadFromFile(const std::string& filename){
     }
 }
 
+void CircuitActive::TreePreproc() {/*
+    for(auto & wire : _wires){
+        if(wire.GetIndex1() > wire.GetIndex2()){
+            auto si1 = wire.GetIndex1();
+            wire.SetIndex1(wire.GetIndex2());
+            wire.SetIndex2(si1);
+            wire.SetE(wire.GetE()*(-1.0));
+        }
+    }
 
+    std::sort(_wires.begin(),_wires.end(),
+              [](Wire & w1, Wire & w2){
+        return w1.GetIndex1() == w2.GetIndex1() ? w1.GetIndex2() < w2.GetIndex2() : w1.GetIndex1() < w2.GetIndex2();
+    });
+*/
+    std::vector<Wire>::iterator it;
+    int i = -1;
+    do {
+        it = std::adjacent_find(_wires.begin(), _wires.end(),
+                                [](Wire &w1, Wire &w2) {
+                                    return (w1.GetIndex1() == w2.GetIndex1()) && (w1.GetIndex2() == w2.GetIndex2());
+                                });
+        if(it == _wires.end())
+            break;
+
+        Wire wire(i, it->GetIndex2(), 0, 0);
+        AddWire(wire);
+        it->SetIndex2(i);
+        Point point(i);
+        i -= 1;
+    } while(it != _wires.end());
+
+    for(auto & point : _points){
+        point.ResetConnections();
+    }
+    ConnectWires();
+}
