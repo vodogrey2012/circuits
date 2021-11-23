@@ -234,6 +234,29 @@ TEST(matrix, inverse) {
     ASSERT_EQ(m1 * inv, E);
     ASSERT_EQ(inv.GetIDem(), 2);
     ASSERT_EQ(inv.GetJDem(), 2);
+
+    Matrix<double> m3(2, 2);
+    m3[0][0] = 6.5;
+    m3[0][1] = 2.2;
+    m3[1][0] = 3.5;
+    m3[1][1] = 4.1;
+
+    Matrix<double> ref(2, 2);
+    ref[0][0] = 0.22;
+    ref[0][1] = -0.12;
+    ref[1][0] = -0.18;
+    ref[1][1] = 0.34;
+
+    Matrix<double> inv_d = m3.Inv();
+    ASSERT_LT(abs(inv_d[0][0] - ref[0][0]), 0.01);
+    ASSERT_LT(abs(inv_d[0][1] - ref[0][1]), 0.01);
+    ASSERT_LT(abs(inv_d[1][0] - ref[1][0]), 0.01);
+    ASSERT_LT(abs(inv_d[1][1] - ref[1][1]), 0.01);
+
+    E = E * 1.0;
+    ASSERT_EQ(m3 * inv_d, E);
+    ASSERT_EQ(inv_d.GetIDem(), 2);
+    ASSERT_EQ(inv_d.GetJDem(), 2);
 }
 
 TEST(matrix, wrong_dimensions) {
@@ -286,6 +309,21 @@ TEST(matrix, non_square_det) {
     ASSERT_DEATH({
         double d = j.Det();
         }, "Invalid dimensions");
+}
+
+TEST(matrix, type_casting) {
+    Matrix<int> m_int(1, 1);
+    m_int[0][0] = 1;
+    ASSERT_EQ(m_int[0][0], 1);
+
+    // Has no effect with int, as casted to 1.
+    m_int[0][0] = 1.1;
+    ASSERT_EQ(m_int[0][0], 1);
+
+    // Now has effect because new matrix contains doubles:
+    Matrix<double> m_d = Matrix<double>(m_int);
+    m_d[0][0] = 1.1;
+    ASSERT_EQ(m_d[0][0], 1.1);
 }
 
 TEST(matrix, matrix_casting) {
