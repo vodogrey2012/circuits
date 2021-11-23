@@ -315,11 +315,11 @@ TEST(matrix, determinant) {
     ASSERT_EQ(m3.Det(), 0);
 
     Matrix<double> m4(2, 2);
-    m3[0][0] = 6.5;
-    m3[0][1] = 2.2;
-    m3[1][0] = 3.5;
-    m3[1][1] = 4.1;
-    ASSERT_EQ(m4.Det(), 18.95);
+    m4[0][0] = 6.5;
+    m4[0][1] = 2.2;
+    m4[1][0] = 3.5;
+    m4[1][1] = 4.1;
+    ASSERT_DOUBLE_EQ(m4.Det(), 18.95);
 }
 
 TEST(matrix, non_square_det) {
