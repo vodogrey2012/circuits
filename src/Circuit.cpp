@@ -49,29 +49,3 @@ std::ostream &operator<<(std::ostream &os, const Circuit &circuit) {
     }
     return os;
 }
-
-inline bool exists(const std::string& name) {
-    struct stat buffer{};
-    return (stat(name.c_str(), &buffer) == 0);
-}
-
-void Circuit::ReadFromFile(const std::string& filename){
-    if(!exists(filename)){
-        std::cerr << "Given circuit-file doesn't exist." << std::endl;
-        exit(-1);
-    }
-    std::ifstream infile(filename);
-    while (infile.peek() != EOF){
-        int index1;
-        int index2;
-        double r;
-        double e;
-        infile >> index1; infile >> index2; infile >> r; infile >> e;
-        if(infile.fail()){
-            std::cerr << "Incorrect input file format." << std::endl;
-            exit(-1);
-        }
-        this->AddWire(Wire(index1, index2, r, e));
-    }
-    infile.close();
-}
