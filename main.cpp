@@ -5,8 +5,8 @@
 
 
 int main(int argc, char* argv[]) {
-    if(argc != 2){
-        std::cerr << "No input file provided!" << std::endl;
+    if((argc != 4) && (argc != 2)){
+        std::cerr << "Arguments: infile [p1] [p2]." << std::endl;
         exit(-1);
     }
 
@@ -14,8 +14,16 @@ int main(int argc, char* argv[]) {
     circuit.ReadFromFile(argv[1]);
     circuit.ConnectWires();
 
-    auto res = circuit.FindCurrent(0, 1);
+    if(argc == 4){
+        std::cout << std::stoi(argv[2]) << " -- " << std::stoi(argv[3]) << ":\tI = "
+                  << circuit.FindCurrent(std::stoi(argv[2]), std::stoi(argv[3])) << std::endl;
+    }
+    else {
+        int p1 = 0;
+        int p2 = 1;
+        std::cout << p1 << " -- " << p2 << ":\tI = "
+                  << circuit.FindCurrent(p1, p2) << std::endl;
+    }
 
-    std::cout << res << std::endl;
     return 0;
 }

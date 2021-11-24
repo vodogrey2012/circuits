@@ -23,7 +23,7 @@ public:
     bool IsExcluded() const;
     void SetExcluded(bool ex);
 private:
-    bool _is_exluded = false;
+    bool _is_excluded = false;
     int _index1 = -1;
     int _index2 = -1;
     double _r;

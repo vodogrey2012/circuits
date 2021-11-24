@@ -25,6 +25,10 @@ void Circuit::ConnectWires() {
     for(auto & wire : _wires){
         auto index1 = wire.GetIndex1();
         auto index2 = wire.GetIndex2();
+        if(index1 == index2){
+            std::cerr << "Error! Wire indexes equals!" << std::endl;
+            exit(-1);
+        }
         auto itp1 = find_if(_points.begin(), _points.end(), [&index1] (const Point& element) { return element.GetIndex() == index1; } );
         auto itp2 = find_if(_points.begin(), _points.end(), [&index2] (const Point& element) { return element.GetIndex() == index2; } );
         itp1->AddElement(&(*itp2), &wire);
@@ -48,4 +52,8 @@ std::ostream &operator<<(std::ostream &os, const Circuit &circuit) {
         }
     }
     return os;
+}
+
+void Circuit::AddPoint(Point point) {
+    _points.push_back(point);
 }

@@ -44,22 +44,14 @@ std::vector<Point::pPElement> Point::GetAllElements() {
     return _pw_elements;
 }
 
-bool Point::Optimize() {
-    if(_pw_elements.size() == 2){
-        if((_pw_elements[0].second->GetE() == 0) && (_pw_elements[1].second->GetE() == 0)){
-            _pw_elements[0].first->AddOptIndex(_index);
-            _pw_elements[1].first->AddOptIndex(_index);
-            _pw_elements[1].second->SetIndex1(_pw_elements[0].first->GetIndex());
-            _pw_elements[1].second->SetR(_pw_elements[1].second->GetR() + _pw_elements[0].second->GetR());
-            _pw_elements[0].first->RemoveElementByIndex(_index);
-            _pw_elements[0].first->AddElement(_pw_elements[1].first, _pw_elements[1].second);
-            _pw_elements.clear();
-            return true;
-        }
-    }
-    return false;
+Point Point::GetPointByIndex(int index2) {
+    std::vector<pPElement>::iterator it;
+    it = std::find_if(_pw_elements.begin(), _pw_elements.end(),
+                      [&index2](const pPElement &element) { return element.first->GetIndex() == index2; });
+    return *(*it).first;
 }
 
-void Point::AddOptIndex(int opt_index) {
-    _opt_index.push_back(opt_index);
+void Point::ResetConnections() {
+    _pw_elements.clear();
 }
+

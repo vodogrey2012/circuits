@@ -21,6 +21,7 @@ protected:
     std::vector<Point> _points;
     std::vector<Wire> _wires;
     void AddPoints();
+    void AddPoint(Point point);
 };
 
 
