@@ -1,8 +1,15 @@
 # 'Google_test' is the subproject name
 project(tests)
 
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        release-1.11.0
+)
+FetchContent_MakeAvailable(googletest)
+
 # 'lib' is the folder with Google Test sources
-add_subdirectory(googletest)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 file(GLOB ALLSRC
