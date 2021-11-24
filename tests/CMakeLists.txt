@@ -17,8 +17,25 @@ file(GLOB ALLSRC
         "../src/*.cpp"
         )
 
+file(GLOB ALLTST
+        "./TB/*.cpp"
+        )
+
+configure_file(./e2e/e2e_tb1.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb2.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb3.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb4.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb_loops.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb4_loops.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
+# define testing flow to rename main of project
+add_compile_definitions(GTEST)
 
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
-add_executable(GTests_run TestMatrix.cpp ${ALLSRC})
-target_link_libraries(GTests_run gtest gtest_main)
+add_executable(GTests_run TestAll.cpp ${ALLSRC} ${ALLTST} env/TestMain.h)
+target_link_libraries(GTests_run gtest)
+
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests(GTests_run)

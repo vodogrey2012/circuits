@@ -13,6 +13,7 @@
 class Circuit {
 public:
     Circuit();
+    ~Circuit()= default;
     void AddWire(Wire wire);
     void ConnectWires();
     friend std::ostream& operator<<(std::ostream& os, const Circuit& circuit);

@@ -14,6 +14,8 @@
 
 class CircuitActive : public Circuit{
 public:
+    CircuitActive()= default;
+    ~CircuitActive()= default;
     double FindCurrent(int i1, int i2);
     void ReadFromFile(const std::string& filename);
 private:

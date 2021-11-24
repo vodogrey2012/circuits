@@ -1,10 +1,14 @@
 #include <iostream>
-#include "src/Wire.h"
-#include "src/Circuit.h"
-#include "src/CircuitActive.h"
+#include "Wire.h"
+#include "Circuit.h"
+#include "CircuitActive.h"
 
-
-int main(int argc, char* argv[]) {
+#ifdef GTEST
+    #include "../tests/env/TestMain.h"
+    int test_main(int argc, char* argv[]) {
+#else
+    int main(int argc, char* argv[]) {
+#endif
     if((argc != 4) && (argc != 2)){
         std::cerr << "Arguments: infile [p1] [p2]." << std::endl;
         exit(-1);
@@ -12,7 +16,6 @@ int main(int argc, char* argv[]) {
 
     CircuitActive circuit;
     circuit.ReadFromFile(argv[1]);
-    circuit.ConnectWires();
 
     if(argc == 4){
         int p1;
@@ -25,8 +28,11 @@ int main(int argc, char* argv[]) {
     else {
         int p1 = 1;
         int p2 = 2;
+        auto res = circuit.FindCurrent(p1, p2);
+#ifndef DEBUG
         std::cout << p1 << " -- " << p2 << ":\tI = "
-                  << circuit.FindCurrent(p1, p2) << std::endl;
+                  << res << std::endl;
+#endif
     }
 
     return 0;
