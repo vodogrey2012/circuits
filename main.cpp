@@ -15,12 +15,16 @@ int main(int argc, char* argv[]) {
     circuit.ConnectWires();
 
     if(argc == 4){
-        std::cout << std::stoi(argv[2]) << " -- " << std::stoi(argv[3]) << ":\tI = "
-                  << circuit.FindCurrent(std::stoi(argv[2]), std::stoi(argv[3])) << std::endl;
+        int p1;
+        int p2;
+        std::istringstream (argv[2]) >> p1;
+        std::istringstream (argv[3]) >> p2;
+        std::cout << p1 << " -- " << p2 << ":\tI = "
+                  << circuit.FindCurrent(p1, p2) << std::endl;
     }
     else {
-        int p1 = 0;
-        int p2 = 1;
+        int p1 = 1;
+        int p2 = 2;
         std::cout << p1 << " -- " << p2 << ":\tI = "
                   << circuit.FindCurrent(p1, p2) << std::endl;
     }

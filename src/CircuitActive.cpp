@@ -116,6 +116,7 @@ bool CircuitActive::IsMonoTree() {
             }
         }
         if (!is_next_point){
+
             point = deq.back();
             deq.pop_back();
         }
@@ -190,14 +191,17 @@ void CircuitActive::ReadFromFile(const std::string& filename){
     for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
         std::smatch match = *i;
 
-        int index1 = std::stoi(match[1]);
-        int index2 = std::stoi(match[2]);
-        double r = std::stof(match[3]);
-        double e;
+        int index1;
+        int index2;
+        double r;
+        double e = 0;
+        std::istringstream (match[1]) >> index1;
+        std::istringstream (match[2]) >> index2;
+        std::istringstream (match[3]) >> r;
+
         if(match[4].str().length() != 0)
-            e = std::stod(match[4].str());
-        else
-            e = 0;
+            std::istringstream (match[4]) >> e;
+
         this->AddWire(Wire(index1, index2, r, e));
     }
 }
