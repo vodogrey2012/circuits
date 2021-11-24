@@ -5,10 +5,15 @@
 #include "CircuitActive.h"
 
 double CircuitActive::FindCurrent(int i1, int i2) {
-    TreePreproc();
-    FindMaxTree();
-    FindMeshCurrents();
-    FindCurrentsFromMesh();
+    static bool is_calculated = false;
+
+    if(!is_calculated){
+        TreePreproc();
+        FindMaxTree();
+        FindMeshCurrents();
+        FindCurrentsFromMesh();
+    }
+    is_calculated = true;
 
     for(auto & wire : _wires){
         if(wire.GetIndex1() == i1 && wire.GetIndex2() == i2)
@@ -38,6 +43,11 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
     for(size_t i = 0; i < C.GetIDem(); ++i){
         _wremoved[i]->SetExcluded(false);
         auto path = FindNoMonoTreePath(*_wremoved[i]);
+
+        for(auto & r : _wires)
+            std::cout << r.GetIndex1() << " " << r.GetIndex2() << std::endl;
+        std::cout << std::endl;
+
         _no_mono_paths.emplace_back(std::make_pair(path, 0));
         for(size_t j = 0; j < C.GetJDem(); ++j){
             for(size_t k = 0; k < path.size()-1; ++k){
@@ -47,7 +57,7 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
                 }
                 else if (path[k] == _wires[j].GetIndex2() && path[k+1] == _wires[j].GetIndex1()){
                     C[i][j] = -1;
-                    E[j][0] = -1.0*_wires[j].GetE();
+                    E[j][0] = _wires[j].GetE();
                 }
             }
         }
@@ -62,13 +72,14 @@ void CircuitActive::FindMeshCurrents() {
     Matrix<double> E(_wires.size(), 1);
     CalcMatrix(C, Z, E);
 
-    //std::cout << C << std::endl;
-    //std::cout << Z << std::endl;
-    //std::cout << E << std::endl;
+    std::cout << C << std::endl;
+    std::cout << Z << std::endl;
+    std::cout << E << std::endl;
 
     auto res = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse())).Inv()*Matrix<double>(C)*E;
     for(size_t i = 0; i < res.GetIDem(); ++i)
         _no_mono_paths[i].second = res[i][0];
+    std::cout << res << std::endl;
 
 }
 
@@ -190,7 +201,7 @@ void CircuitActive::ReadFromFile(const std::string& filename){
     }
 }
 
-void CircuitActive::TreePreproc() {/*
+void CircuitActive::TreePreproc() {
     for(auto & wire : _wires){
         if(wire.GetIndex1() > wire.GetIndex2()){
             auto si1 = wire.GetIndex1();
@@ -204,7 +215,7 @@ void CircuitActive::TreePreproc() {/*
               [](Wire & w1, Wire & w2){
         return w1.GetIndex1() == w2.GetIndex1() ? w1.GetIndex2() < w2.GetIndex2() : w1.GetIndex1() < w2.GetIndex2();
     });
-*/
+
     std::vector<Wire>::iterator it;
     int i = -1;
     do {
