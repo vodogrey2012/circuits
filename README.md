@@ -1,7 +1,7 @@
 # Status
 First iteration
 
-[![Tests](https://github.com/watson/ci-info/workflows/Tests/badge.svg)](https://github.com/watson/ci-info/actions)
+[![Tests](https://github.com/vodogrey2012/circuits/actions/workflows/cmake.yml/badge.svg)](https://github.com/vodogrey2012/circuits/actions/workflows/cmake.yml)
 
 # About
 This program calculates the active electrical circuit.
