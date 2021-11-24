@@ -20,8 +20,10 @@ The executable file takes the first required argument - the input file and a cou
 infile <p1> <p2>
 ```
 
+Test files (e2e tests) can be found [here](https://github.com/vodogrey2012/circuits/tree/master/tests/e2e).
+
 # Base idea
-Core of calculation is based on mash tree calculation method (https://en.wikipedia.org/wiki/Mesh_analysis).
+Core of calculation is based on mesh tree method ([wiki](https://en.wikipedia.org/wiki/Mesh_analysis)).
 
 Additionally, processing of parallel connections is implemented, i.e. input data like:
 ```
