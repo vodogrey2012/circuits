@@ -8,9 +8,10 @@ double CircuitActive::FindCurrent(int i1, int i2) {
     static bool is_calculated = false;
 
     if(!is_calculated){
-        TreePreproc();
+        TreePreProc();
         FindMaxTree();
         FindMeshCurrents();
+        TreePostProc();
         FindCurrentsFromMesh();
     }
     is_calculated = true;
@@ -44,9 +45,9 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
         _wremoved[i]->SetExcluded(false);
         auto path = FindNoMonoTreePath(*_wremoved[i]);
 
-        for(auto & r : _wires)
-            std::cout << r.GetIndex1() << " " << r.GetIndex2() << std::endl;
-        std::cout << std::endl;
+        //for(auto & r : path)
+        //    std::cout << r ;
+        //std::cout << std::endl;
 
         _no_mono_paths.emplace_back(std::make_pair(path, 0));
         for(size_t j = 0; j < C.GetJDem(); ++j){
@@ -72,14 +73,14 @@ void CircuitActive::FindMeshCurrents() {
     Matrix<double> E(_wires.size(), 1);
     CalcMatrix(C, Z, E);
 
-    std::cout << C << std::endl;
-    std::cout << Z << std::endl;
-    std::cout << E << std::endl;
+    //std::cout << C << std::endl;
+    //std::cout << Z << std::endl;
+    //std::cout << E << std::endl;
 
     auto res = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse())).Inv()*Matrix<double>(C)*E;
     for(size_t i = 0; i < res.GetIDem(); ++i)
         _no_mono_paths[i].second = res[i][0];
-    std::cout << res << std::endl;
+    //std::cout << res << std::endl;
 
 }
 
@@ -201,7 +202,7 @@ void CircuitActive::ReadFromFile(const std::string& filename){
     }
 }
 
-void CircuitActive::TreePreproc() {
+void CircuitActive::TreePreProc() {
     for(auto & wire : _wires){
         if(wire.GetIndex1() > wire.GetIndex2()){
             auto si1 = wire.GetIndex1();
@@ -237,4 +238,24 @@ void CircuitActive::TreePreproc() {
         point.ResetConnections();
     }
     ConnectWires();
+}
+
+void CircuitActive::TreePostProc() {
+    for(auto & path : _no_mono_paths){
+        auto & path_vec = path.first;
+
+        std::vector<int>::iterator it;
+        for( it = std::find_if(path_vec.begin(), path_vec.end(),
+            [](const int &element) { return element < 0; });
+             it != path_vec.end();
+             it = std::find_if(path_vec.begin(), path_vec.end(),
+            [](const int &element) { return element < 0; }) ){
+            path_vec.erase(it);
+        }
+
+        //for(auto & r : path.first)
+        //    std::cout << r ;
+        //std::cout << std::endl;
+    }
+
 }

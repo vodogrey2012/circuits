@@ -17,7 +17,8 @@ public:
     double FindCurrent(int i1, int i2);
     void ReadFromFile(const std::string& filename);
 private:
-    void TreePreproc();
+    void TreePreProc();
+    void TreePostProc();
     void FindMaxTree();
     bool IsMonoTree();
     void CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E);
