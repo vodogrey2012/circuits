@@ -15,7 +15,7 @@ public:
     Circuit()= default;
     ~Circuit()= default;
     void AddWire(Wire wire){        _wires.push_back(wire);}
-    void ConnectWires();
+    int ConnectWires();
     friend std::ostream& operator<<(std::ostream& os, const Circuit& circuit);
 protected:
     void UniquePoints();

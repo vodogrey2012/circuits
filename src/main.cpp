@@ -11,7 +11,7 @@
 #endif
     if((argc != 2) && (argc != 1)){
         std::cerr << "Arguments: infile. Or redirect stream" << std::endl;
-        exit(-1);
+        return -1;
     }
 
     CircuitActive circuit;
@@ -19,14 +19,14 @@
     if(argc == 2){
         std::ifstream t(argv[1]);
         if(t){
-            circuit.ReadFromFile(t);
+            if(circuit.ReadFromFile(t)) return -1;
         }
         else{
             std::cerr << "Given circuit-file doesn't exist: " << argv[1] << std::endl;
             return -1;
         }
     }
-    else if(argc == 1){
+    else {
         circuit.ReadFromFile(std::cin);
     }
 

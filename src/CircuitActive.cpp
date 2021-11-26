@@ -7,7 +7,7 @@
 double CircuitActive::FindCurrent() {
 
     TreePreProc();
-    ConnectWires();
+    if(ConnectWires()) return -1;
     FindMaxTree();
     FindMeshCurrents();
     TreePostProc();
@@ -159,7 +159,7 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
     return ret;
 }
 
-void CircuitActive::ReadFromFile(const std::istream& sfile){
+int CircuitActive::ReadFromFile(const std::istream& sfile){
     std::stringstream ss;
     ss << sfile.rdbuf();
     std::string s = ss.str();
@@ -176,7 +176,7 @@ void CircuitActive::ReadFromFile(const std::istream& sfile){
 
     if(words_begin == words_end){
         std::cerr << "Incorrect input file format." << std::endl;
-        exit(-1);
+        return -1;
     }
 
     for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
@@ -195,6 +195,7 @@ void CircuitActive::ReadFromFile(const std::istream& sfile){
 
         this->AddWire(Wire(index1, index2, r, e));
     }
+    return 0;
 }
 
 void CircuitActive::TreePreProc() {

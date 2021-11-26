@@ -13,7 +13,7 @@ void Circuit::AddPoints() {
     }
 }
 
-void Circuit::ConnectWires() {
+int Circuit::ConnectWires() {
     AddPoints();
     UniquePoints();
     for(auto & wire : _wires){
@@ -21,13 +21,14 @@ void Circuit::ConnectWires() {
         auto index2 = wire.GetIndex2();
         if(index1 == index2){
             std::cerr << "Error! Wire indexes equals!" << std::endl;
-            exit(-1);
+            return -1;
         }
         auto itp1 = find_if(_points.begin(), _points.end(), [&index1] (const Point& element) { return element.GetIndex() == index1; } );
         auto itp2 = find_if(_points.begin(), _points.end(), [&index2] (const Point& element) { return element.GetIndex() == index2; } );
         itp1->AddElement(&(*itp2), &wire);
         itp2->AddElement(&(*itp1), &wire);
     }
+    return 0;
 }
 
 void Circuit::UniquePoints() {

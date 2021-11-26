@@ -17,7 +17,7 @@ public:
     CircuitActive()= default;
     ~CircuitActive()= default;
     double FindCurrent();
-    void ReadFromFile(const std::istream& sfile);
+    int ReadFromFile(const std::istream& sfile);
 private:
     void TreePreProc();
     void TreePostProc();
