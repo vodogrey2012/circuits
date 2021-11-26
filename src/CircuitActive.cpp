@@ -176,7 +176,7 @@ void CircuitActive::ReadFromFile(const std::string& filename){
     std::string point1("(\\d+)");
     std::string point2("(\\d+)");
     std::string resist("(\\d+(?:\\.\\d+)?)");
-    std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*;)?");
+    std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*V?\\s*;)?");
 
     std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist + "\\s*;\\s*" + opteds);
     auto words_begin =
