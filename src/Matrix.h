@@ -15,9 +15,9 @@
 template <typename T>
 class Matrix {
 public:
-    Matrix(int i, int j){
-        _i = i;
-        _j = j;
+    Matrix(int i, int j):
+            _i(i),
+            _j(j){
         _matrix.resize(i);
         for(auto & it : _matrix )
             it.resize(j);
