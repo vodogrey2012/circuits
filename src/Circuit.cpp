@@ -4,8 +4,6 @@
 
 #include "Circuit.h"
 
-Circuit::Circuit() = default;
-
 void Circuit::AddPoints() {
     for(auto & wire : _wires) {
         Point point1(wire.GetIndex1());
@@ -13,10 +11,6 @@ void Circuit::AddPoints() {
         _points.push_back(point1);
         _points.push_back(point2);
     }
-}
-
-void Circuit::AddWire(Wire wire) {
-    _wires.push_back(wire);
 }
 
 void Circuit::ConnectWires() {
@@ -36,8 +30,6 @@ void Circuit::ConnectWires() {
     }
 }
 
-bool operator== (const Point &p1, const Point &p2){ return (p1.GetIndex() == p2.GetIndex() ); }
-
 void Circuit::UniquePoints() {
     std::sort(_points.begin(),_points.end(), [](Point & p1, Point & p2){return p1.GetIndex() < p2.GetIndex();});
     _points.erase( unique( _points.begin(), _points.end() ), _points.end() );
@@ -52,8 +44,4 @@ std::ostream &operator<<(std::ostream &os, const Circuit &circuit) {
         }
     }
     return os;
-}
-
-void Circuit::AddPoint(Point point) {
-    _points.push_back(point);
 }

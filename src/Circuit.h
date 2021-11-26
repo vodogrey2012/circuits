@@ -12,9 +12,9 @@
 
 class Circuit {
 public:
-    Circuit();
+    Circuit()= default;
     ~Circuit()= default;
-    void AddWire(Wire wire);
+    void AddWire(Wire wire){        _wires.push_back(wire);}
     void ConnectWires();
     friend std::ostream& operator<<(std::ostream& os, const Circuit& circuit);
 protected:
@@ -22,7 +22,7 @@ protected:
     std::vector<Point> _points;
     std::vector<Wire> _wires;
     void AddPoints();
-    void AddPoint(Point point);
+    void AddPoint(const Point& point){     _points.push_back(point);}
 };
 
 

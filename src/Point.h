@@ -25,6 +25,7 @@ public:
     void ResetConnections(){    _pw_elements.clear();}
     void AddElement(Point* point, Wire* wire){  _pw_elements.emplace_back(point, wire);}
     int GetIndex() const{       return _index;}
+    friend bool operator== (const Point &p1, const Point &p2){ return (p1.GetIndex() == p2.GetIndex() ); }
 private:
     int _index;
     std::vector<pPElement> _pw_elements;
