@@ -4,7 +4,7 @@
 
 #include "CircuitActive.h"
 
-double CircuitActive::FindCurrent(int i1, int i2) {
+double CircuitActive::FindCurrent() {
 
     TreePreProc();
     ConnectWires();
@@ -14,12 +14,9 @@ double CircuitActive::FindCurrent(int i1, int i2) {
     FindCurrentsFromMesh();
 
     for(auto & wire : _wires){
-        if(wire.GetIndex1() == i1 && wire.GetIndex2() == i2)
-            return wire.GetI();
-        else if(wire.GetIndex1() == i2 && wire.GetIndex2() == i1)
-            return -1.0*wire.GetI();
+        std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ":\tI = "
+                  << wire.GetI() << std::endl;
     }
-    std::cout << "Invalid requested current" << std::endl;
     return 0;
 }
 
@@ -162,15 +159,9 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
     return ret;
 }
 
-void CircuitActive::ReadFromFile(const std::string& filename){
-    std::ifstream t(filename);
-    if(!t){
-        std::cerr << "Given circuit-file doesn't exist: " << filename << std::endl;
-        exit(-1);
-    }
-
+void CircuitActive::ReadFromFile(const std::istream& sfile){
     std::stringstream ss;
-    ss << t.rdbuf();
+    ss << sfile.rdbuf();
     std::string s = ss.str();
 
     std::string point1("(\\d+)");
