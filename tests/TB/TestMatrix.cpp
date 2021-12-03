@@ -5,6 +5,41 @@
 #include "gtest/gtest.h"
 #include "../../src/Matrix.h"
 
+TEST(matrix, matrix_constructors) {
+    Matrix<double> m1(3, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[1][0] = 3;
+    m1[1][1] = 4;
+    m1[2][0] = 4;
+    m1[2][1] = 4;
+
+    Matrix<double> m2 = m1;
+
+    ASSERT_EQ(m1, m2);
+    ASSERT_EQ(m1.GetIDem(), m2.GetIDem());
+    ASSERT_EQ(m1.GetJDem(), m2.GetJDem());
+}
+
+Matrix<double> generateItem()
+{
+    Matrix<double> item(1, 2);
+    item[0][0] = 1;
+    item[0][1] = -1;
+    return item; // это возвращаемое значение приведет к вызову конструктора перемещения
+}
+
+TEST(matrix, matrix_assign_move) {
+    Matrix<double> m1;
+    m1 = generateItem();
+
+    ASSERT_EQ(m1[0][0], 1);
+    ASSERT_EQ(m1[0][1], -1);
+    ASSERT_EQ(m1.GetIDem(), 1);
+    ASSERT_EQ(m1.GetJDem(), 2);
+}
+
+
 TEST(matrix, matrix_equality) {
 Matrix<double> m1(2, 2);
 m1[0][0] = 1;

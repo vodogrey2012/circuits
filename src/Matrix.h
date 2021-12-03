@@ -15,6 +15,10 @@
 template <typename T>
 class Matrix {
 public:
+    Matrix():
+            _i(0),
+            _j(0){}
+
     Matrix(int i, int j):
             _i(i),
             _j(j){
@@ -22,6 +26,22 @@ public:
         for(auto & it : _matrix )
             it.resize(j);
     }
+
+    Matrix(const Matrix &m) :
+            _i(m.GetIDem()),
+            _j(m.GetJDem()){
+        _matrix.resize(m.GetIDem());
+        for(auto & it : _matrix )
+            it.resize(m.GetJDem());
+        for(int x = 0; x < _i; ++x)
+            for(int y = 0; y < _j; ++y)
+                _matrix[x][y] = m[x][y];
+    }
+
+    Matrix(Matrix&& mm) noexcept :
+            _i(mm._i),
+            _j(mm._j),
+            _matrix(std::move(mm._matrix)){}
 
     ~Matrix()= default;
     int GetIDem() const{
@@ -142,7 +162,7 @@ public:
     }
 
     template <typename N>
-    operator Matrix<N>() {
+    explicit operator Matrix<N>() {
         Matrix<N> res(_i, _j);
         for (int x = 0; x < _i; ++x)
             for (int y = 0; y < _j; ++y)
@@ -175,12 +195,13 @@ public:
         return os;
     }
 
-    Matrix<T> operator=(const Matrix<T> & m1){
-        Matrix<T> res(m1.GetIDem(), m1.GetJDem());
-        for (int x = 0; x < m1.GetIDem(); ++x)
-            for (int y = 0; y < m1.GetJDem(); ++y)
-                res[x][y] = m1[x][y];
-        return res;
+    Matrix<T> & operator=(Matrix<T>&& mm) noexcept {
+        if (&mm == this)
+            return *this;
+        _i = std::move(mm._i);
+        _j = std::move(mm._j);
+        _matrix = std::move(mm._matrix);
+        return *this;
     }
 
 private:
