@@ -8,18 +8,10 @@ double CircuitActive::FindCurrent() {
 
     if(ConnectWires()) return -1;
     FindMaxTree();
-    if(_wremoved.size() == 0){
-        std::cerr << "Invalid input circuit!\n"
-                     "It consists of many separated circuits.\n"
-                     "Split input into unique circuits\n";
-        return -1;
+    if(_wremoved.size() != 0){
+        if(FindMeshCurrents()) return -1;
+        FindCurrentsFromMesh();
     }
-    if(FindMeshCurrents()) return -1;
-    FindCurrentsFromMesh();
-
-    std::sort(_wires.begin(),_wires.end(),
-              [](Wire & w1, Wire & w2){
-                  return w1.GetWindex() < w2.GetWindex();});
 
     for(auto & wire : _wires){
         std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ":\tI = "
@@ -29,9 +21,21 @@ double CircuitActive::FindCurrent() {
 }
 
 void CircuitActive::FindMaxTree() {
+    int i = 0;
     for(auto & wire : _wires){
+        std::cout << i << std::endl;
+        i++;
+        Point start;
+        for(auto & point : _points){
+            auto allel = point.GetAllElements();
+            auto it = std::find_if(allel.begin(), allel.end(), [&wire](const Point::pPElement& element){ return element.second->GetWindex() == wire.GetWindex();});
+            if(it != allel.end())
+                start = *it->first;
+        }
+
+        auto full = FindAllVisitedPoints(start);
         wire.SetExcluded(true);
-        if(IsMonoTree())
+        if(IsMonoTree(start, full))
             _wremoved.emplace_back(&wire);
         else
             wire.SetExcluded(false);
@@ -121,11 +125,11 @@ void CircuitActive::FindCurrentsFromMesh() {
     }
 }
 
-std::vector<int> CircuitActive::FindAllVisitedPoints() {
+std::vector<int> CircuitActive::FindAllVisitedPoints(Point start) {
     std::vector<int> wvisited;
     std::vector<int> pvisited;
     std::deque<Point> deq;
-    auto point = _points[0];
+    auto point = start;
     pvisited.push_back(point.GetIndex());
     deq.push_back(point);
     deq.push_back(point);
@@ -153,11 +157,11 @@ std::vector<int> CircuitActive::FindAllVisitedPoints() {
 }
 
 
-bool CircuitActive::IsMonoTree() {
-    std::vector<int> pvisited = FindAllVisitedPoints();
+bool CircuitActive::IsMonoTree(Point start, std::vector<int> full) {
+    std::vector<int> pvisited = FindAllVisitedPoints(start);
 
-    for(const auto& point1 : _points) {
-        if(std::find(pvisited.begin(), pvisited.end(), point1.GetIndex()) == pvisited.end())
+    for(const auto& point1 : full) {
+        if(std::find(pvisited.begin(), pvisited.end(), point1) == pvisited.end())
             return false;
     }
     return true;
@@ -165,9 +169,9 @@ bool CircuitActive::IsMonoTree() {
 
 
 std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
-    std::vector<int> wvisited = {};
-    std::deque<Point> deq = {};
-    std::vector<int> ret = {};
+    std::vector<int> wvisited;
+    std::deque<Point> deq;
+    std::vector<int> ret;
     auto it = find_if(_points.begin(), _points.end(), [&start] (const Point& element) { return element.GetIndex() == start.GetIndex1(); } );
     auto point = *it;
     deq.push_back(point);
@@ -192,7 +196,7 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
             ret.pop_back();
             point = deq.back();
         }
-    } while(deq.front().GetIndex() != deq.back().GetIndex() || deq.size() < 2);
+    } while(deq.front().GetIndex() != deq.back().GetIndex());
 
     return ret;
 }

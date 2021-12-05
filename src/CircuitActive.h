@@ -20,8 +20,8 @@ public:
     int ReadFromFile(const std::istream& sfile);
 private:
     void FindMaxTree();
-    bool IsMonoTree();
-    std::vector<int> FindAllVisitedPoints();
+    bool IsMonoTree(Point start, std::vector<int> full);
+    std::vector<int> FindAllVisitedPoints(Point start);
     void CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E);
     int FindMeshCurrents();
     void FindCurrentsFromMesh();

@@ -87,8 +87,13 @@ TEST(matrix, e2e_tb_loops1) {
 
 TEST(matrix, e2e_tb_split) {
     const char* file = "e2e_tb_split.txt";
+    std::vector<double> exp = {-0.56, -3.125, -3.125, -0.56, -0.56, 2.565, 3.63, -1.38, -1.38, 3.63, 3.63, 5.01, 1, 0};
     auto res = CalcCircuit(file);
-    ASSERT_EQ(res.size(), 0);
+
+    ASSERT_EQ(res.size(), exp.size());
+    for (int i = 0; i < exp.size(); ++i) {
+        EXPECT_NEAR(res[i], exp[i], 0.01);
+    }
 }
 
 TEST(matrix, e2e_tb_invalid_parameters) {
@@ -96,9 +101,6 @@ TEST(matrix, e2e_tb_invalid_parameters) {
     auto res = CalcCircuit(file);
     ASSERT_EQ(res.size(), 0);
 }
-
-
-
 
 std::vector<double> CalcCircuit(const char* file){
     int     argc = 2;
