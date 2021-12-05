@@ -6,12 +6,20 @@
 
 double CircuitActive::FindCurrent() {
 
-    TreePreProc();
     if(ConnectWires()) return -1;
     FindMaxTree();
-    FindMeshCurrents();
-    TreePostProc();
+    if(_wremoved.size() == 0){
+        std::cerr << "Invalid input circuit!\n"
+                     "It consists of many separated circuits.\n"
+                     "Split input into unique circuits\n";
+        return -1;
+    }
+    if(FindMeshCurrents()) return -1;
     FindCurrentsFromMesh();
+
+    std::sort(_wires.begin(),_wires.end(),
+              [](Wire & w1, Wire & w2){
+                  return w1.GetWindex() < w2.GetWindex();});
 
     for(auto & wire : _wires){
         std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ":\tI = "
@@ -45,12 +53,12 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
 #endif
         _no_mono_paths.emplace_back(std::make_pair(path, 0));
         for(size_t j = 0; j < C.GetJDem(); ++j){
-            for(size_t k = 0; k < path.size()-1; ++k){
-                if(path[k] == _wires[j].GetIndex1() && path[k+1] == _wires[j].GetIndex2()) {
+            for(size_t k = 0; k < path.size(); ++k){
+                if(path[k] == _wires[j].GetWindex()) {
                     C[i][j] = 1;
                     E[j][0] = _wires[j].GetE();
                 }
-                else if (path[k] == _wires[j].GetIndex2() && path[k+1] == _wires[j].GetIndex1()){
+                else if(path[k] == -1*_wires[j].GetWindex()){
                     C[i][j] = -1;
                     E[j][0] = _wires[j].GetE();
                 }
@@ -61,34 +69,51 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
 
 }
 
-void CircuitActive::FindMeshCurrents() {
+int CircuitActive::FindMeshCurrents() {
     Matrix<int>    C(_wremoved.size(), _wires.size());
     Matrix<double> Z(_wires.size(), _wires.size());
     Matrix<double> E(_wires.size(), 1);
     CalcMatrix(C, Z, E);
 
-    auto res = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse())).Inv()*Matrix<double>(C)*E;
-    for(size_t i = 0; i < res.GetIDem(); ++i)
-        _no_mono_paths[i].second = res[i][0];
+    Matrix<double> left = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse()));
+    Matrix<double> right = Matrix<double>(C)*E;
+    std::vector<double> vright;
 
 #ifdef DEBUG
-    std::cout << C << std::endl;
-    std::cout << Z << std::endl;
-    std::cout << E << std::endl;
-    std::cout << (Matrix<double>(C)*Z*Matrix<double>(C.Transponse())) << std::endl;
-    std::cout << res << std::endl;
+    std::cout << "MATRIX C =\n" << C << std::endl;
+    std::cout << "MATRIX Z =\n"<< Z << std::endl;
+    std::cout << "MATRIX E =\n"<< E << std::endl;
+    std::cout << "MATRIX left =\n" << left << std::endl;
 #endif
 
+    assert(right.GetJDem() == 1);
+    vright.reserve(right.GetIDem());
+    for(auto i = 0; i < right.GetIDem(); i++)
+        vright.emplace_back(right[i][0]);
+
+    std::vector<double> res = left.Gauss(vright);
+    if(res.size() == 0){
+        std::cerr << "Invalid circuit parameters!" << std::endl;
+        return -1;
+    }
+    for(size_t i = 0; i < res.size(); ++i)
+        _no_mono_paths[i].second = res[i];
+
+#ifdef DEBUG
+    for(auto & it : res)
+        std::cout << it << "\t|\n";
+#endif
+    return 0;
 }
 
 void CircuitActive::FindCurrentsFromMesh() {
     for(auto & wire : _wires){
         double i = 0;
         for(auto & path : _no_mono_paths){
-            for(size_t k = 0; k < path.first.size()-1; ++k){
-                if(path.first[k] == wire.GetIndex1() && path.first[k+1] == wire.GetIndex2())
+            for(size_t k = 0; k < path.first.size(); ++k){
+                if(path.first[k] == wire.GetWindex())
                     i += path.second;
-                else if (path.first[k] == wire.GetIndex2() && path.first[k+1] == wire.GetIndex1())
+                else if (path.first[k] == -1*wire.GetWindex())
                     i -= path.second;
             }
         }
@@ -96,65 +121,78 @@ void CircuitActive::FindCurrentsFromMesh() {
     }
 }
 
-bool CircuitActive::IsMonoTree() {
-    std::vector<int> visited;
+std::vector<int> CircuitActive::FindAllVisitedPoints() {
+    std::vector<int> wvisited;
+    std::vector<int> pvisited;
     std::deque<Point> deq;
     auto point = _points[0];
+    pvisited.push_back(point.GetIndex());
+    deq.push_back(point);
+    deq.push_back(point);
     do{
         bool is_next_point = false;
         for(auto elem : point.GetAllElements()){
-            if(     std::find(visited.begin(), visited.end(), elem.first->GetIndex()) == visited.end()
+            if(     std::find(wvisited.begin(), wvisited.end(), elem.second->GetWindex()) == wvisited.end()
                 && !elem.second->IsExcluded()){
                 point = *elem.first;
                 deq.push_back(point);
-                visited.push_back(point.GetIndex());
+                pvisited.push_back(point.GetIndex());
+                wvisited.push_back(elem.second->GetWindex());
                 is_next_point = true;
                 break;
             }
         }
-        if (!is_next_point){
-
+        if (!is_next_point && !deq.empty()){
             point = deq.back();
             deq.pop_back();
         }
 
     } while(!deq.empty());
+
+    return pvisited;
+}
+
+
+bool CircuitActive::IsMonoTree() {
+    std::vector<int> pvisited = FindAllVisitedPoints();
+
     for(const auto& point1 : _points) {
-        if(std::find(visited.begin(), visited.end(), point1.GetIndex()) == visited.end())
+        if(std::find(pvisited.begin(), pvisited.end(), point1.GetIndex()) == pvisited.end())
             return false;
     }
     return true;
 }
 
+
 std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
-    std::vector<Wire*> wvisited;
-    std::deque<Point> deq;
+    std::vector<int> wvisited = {};
+    std::deque<Point> deq = {};
+    std::vector<int> ret = {};
     auto it = find_if(_points.begin(), _points.end(), [&start] (const Point& element) { return element.GetIndex() == start.GetIndex1(); } );
     auto point = *it;
     deq.push_back(point);
     do{
         bool is_next_point = false;
         for(auto elem : point.GetAllElements()){
-            if(    std::find(wvisited.begin(), wvisited.end(), elem.second) == wvisited.end()
+            if(    std::find(wvisited.begin(), wvisited.end(), elem.second->GetWindex()) == wvisited.end()
                 && !elem.second->IsExcluded()){
                 point = *elem.first;
                 deq.push_back(point);
-                wvisited.push_back(elem.second);
+                if(point.GetIndex() == elem.second->GetIndex1())
+                    ret.emplace_back(-1*elem.second->GetWindex());
+                else
+                    ret.emplace_back(elem.second->GetWindex());
+                wvisited.push_back(elem.second->GetWindex());
                 is_next_point = true;
                 break;
             }
         }
         if (!is_next_point){
             deq.pop_back();
+            ret.pop_back();
             point = deq.back();
         }
     } while(deq.front().GetIndex() != deq.back().GetIndex() || deq.size() < 2);
-
-    std::vector<int> ret;
-    ret.reserve(deq.size());
-    for(auto & elem : deq){
-        ret.emplace_back(elem.GetIndex());
-    }
 
     return ret;
 }
@@ -179,6 +217,7 @@ int CircuitActive::ReadFromFile(const std::istream& sfile){
         return -1;
     }
 
+    int windex = 1;
     for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
         std::smatch match = *i;
 
@@ -193,64 +232,8 @@ int CircuitActive::ReadFromFile(const std::istream& sfile){
         if(match[4].str().length() != 0)
             std::istringstream (match[4]) >> e;
 
-        this->AddWire(Wire(index1, index2, r, e));
+        this->AddWire(Wire(index1, index2, r, e, windex));
+        windex += 1;
     }
     return 0;
-}
-
-void CircuitActive::TreePreProc() {
-    for(auto & wire : _wires){
-        if(wire.GetIndex1() > wire.GetIndex2()){
-            auto si1 = wire.GetIndex1();
-            wire.SetIndex1(wire.GetIndex2());
-            wire.SetIndex2(si1);
-            wire.SetE(wire.GetE()*(-1.0));
-        }
-    }
-
-    std::sort(_wires.begin(),_wires.end(),
-              [](Wire & w1, Wire & w2){
-        return w1.GetIndex1() == w2.GetIndex1() ? w1.GetIndex2() < w2.GetIndex2() : w1.GetIndex1() < w2.GetIndex2();
-    });
-
-    std::vector<Wire>::iterator it;
-    int i = -1;
-    do {
-        it = std::adjacent_find(_wires.begin(), _wires.end(),
-                                [](Wire &w1, Wire &w2) {
-                                    return (w1.GetIndex1() == w2.GetIndex1()) && (w1.GetIndex2() == w2.GetIndex2());
-                                });
-        if(it == _wires.end())
-            break;
-
-        Wire wire(i, it->GetIndex2(), 0, 0);
-        (*it).SetIndex2(i);
-        AddWire(wire);
-        i -= 1;
-    } while(it != _wires.end());
-}
-
-void CircuitActive::TreePostProc() {
-    for(auto & path : _no_mono_paths){
-        auto & path_vec = path.first;
-
-        if(path_vec.back() < 0){
-            auto fp = path_vec[1];
-            path_vec.emplace_back(fp);
-        }
-
-        std::vector<int>::iterator it;
-        for( it = std::find_if(path_vec.begin(), path_vec.end(),
-            [](const int &element) { return element < 0; });
-             it != path_vec.end();
-             it = std::find_if(path_vec.begin(), path_vec.end(),
-            [](const int &element) { return element < 0; }) ){
-            path_vec.erase(it);
-        }
-
-        //for(auto & r : path.first)
-        //    std::cout << r ;
-        //std::cout << std::endl;
-    }
-
 }

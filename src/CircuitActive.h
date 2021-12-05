@@ -19,17 +19,15 @@ public:
     double FindCurrent();
     int ReadFromFile(const std::istream& sfile);
 private:
-    void TreePreProc();
-    void TreePostProc();
     void FindMaxTree();
     bool IsMonoTree();
+    std::vector<int> FindAllVisitedPoints();
     void CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E);
-    void FindMeshCurrents();
+    int FindMeshCurrents();
     void FindCurrentsFromMesh();
     std::vector<int> FindNoMonoTreePath(Wire start);
     std::vector<Wire*> _wremoved;
     std::vector<std::pair<std::vector<int>, double>> _no_mono_paths;
-
 };
 
 

@@ -268,6 +268,49 @@ ASSERT_EQ(res1.GetIDem(), 1);
 ASSERT_EQ(res1.GetJDem(), 5);
 }
 
+TEST(matrix, determinant) {
+    Matrix<double> m1(2, 2);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[1][0] = 3;
+    m1[1][1] = 4;
+
+    ASSERT_EQ(m1.Det(), (1*4 - 2*3));
+
+    Matrix<double> m3(3, 3);
+    m3[0][0] = 1;
+    m3[0][1] = 2;
+    m3[0][2] = 3;
+    m3[1][0] = 3;
+    m3[1][1] = 4;
+    m3[1][2] = 5;
+    m3[2][0] = 5;
+    m3[2][1] = 6;
+    m3[2][2] = 7;
+
+    ASSERT_EQ(m3.Det(), 0);
+
+    Matrix<double> m4(2, 2);
+    m4[0][0] = 6.5;
+    m4[0][1] = 2.2;
+    m4[1][0] = 3.5;
+    m4[1][1] = 4.1;
+    ASSERT_DOUBLE_EQ(m4.Det(), 18.95);
+
+    Matrix<int> m5(3, 3);
+    m5[0][0] = 30;
+    m5[0][1] = 0;
+    m5[0][2] = 0;
+    m5[1][0] = 22;
+    m5[1][1] = 0;
+    m5[1][2] = 0;
+    m5[2][0] = 0;
+    m5[2][1] = 72;
+    m5[2][2] = 12;
+    ASSERT_DOUBLE_EQ(m5.Det(), 0);
+}
+
+
 TEST(matrix, inverse) {
 Matrix<double> m1(2, 2);
 m1[0][0] = 1;
@@ -276,10 +319,10 @@ m1[1][0] = 3;
 m1[1][1] = 4;
 
 auto res = m1 * m1.Inv();
-ASSERT_DOUBLE_EQ(res[0][0], 1);
-ASSERT_DOUBLE_EQ(res[0][1], 0);
-ASSERT_DOUBLE_EQ(res[1][0], 0);
-ASSERT_DOUBLE_EQ(res[1][1], 1);
+    EXPECT_NEAR(res[0][0], 1, 0.00001);
+    EXPECT_NEAR(res[0][1], 0, 0.00001);
+    EXPECT_NEAR(res[1][0], 0, 0.00001);
+    EXPECT_NEAR(res[1][1], 1, 0.00001);
 
 ASSERT_EQ(m1.Inv().GetIDem(), 2);
 ASSERT_EQ(m1.Inv().GetJDem(), 2);
@@ -327,36 +370,6 @@ Matrix<double> res = m2 * m1;
 }, "Invalid dimensions");
 }
 
-TEST(matrix, determinant) {
-Matrix<double> m1(2, 2);
-m1[0][0] = 1;
-m1[0][1] = 2;
-m1[1][0] = 3;
-m1[1][1] = 4;
-
-ASSERT_EQ(m1.Det(), (1*4 - 2*3));
-
-Matrix<double> m3(3, 3);
-m3[0][0] = 1;
-m3[0][1] = 2;
-m3[0][2] = 3;
-m3[1][0] = 3;
-m3[1][1] = 4;
-m3[1][2] = 5;
-m3[2][0] = 5;
-m3[2][1] = 6;
-m3[2][2] = 7;
-
-ASSERT_EQ(m3.Det(), 0);
-
-Matrix<double> m4(2, 2);
-m4[0][0] = 6.5;
-m4[0][1] = 2.2;
-m4[1][0] = 3.5;
-m4[1][1] = 4.1;
-ASSERT_DOUBLE_EQ(m4.Det(), 18.95);
-}
-
 TEST(matrix, non_square_det) {
 // Test of errors caused by calculation
 // of determinant of non-square matrix.
@@ -401,4 +414,46 @@ exp[1][0] = 3;
 exp[1][1] = 4;
 
 ASSERT_EQ(m2, exp);
+}
+
+
+TEST(matrix, gauss1) {
+    Matrix<double> Am(2, 2);
+    Matrix<double> Cm(2, 1);
+
+    Am[0][0] = 1;
+    Am[0][1] = 2;
+    Am[1][0] = 3;
+    Am[1][1] = 4;
+
+    std::vector<double> C = {5, 6};
+
+    auto res = Am.Gauss(C);
+    std::vector<double> exp = {-4, 4.5};
+
+    ASSERT_EQ(res.size(), exp.size());
+    for (int i = 0; i < exp.size(); ++i) {
+        EXPECT_NEAR(res[i], exp[i], 0.01);
+    }
+}
+
+
+TEST(matrix, gauss2) {
+    Matrix<double> Am(2, 2);
+    Matrix<double> Cm(2, 1);
+
+    Am[0][0] = 1;
+    Am[0][1] = 2;
+    Am[1][0] = 0;
+    Am[1][1] = 4;
+
+    std::vector<double> C = {5, 6};
+
+    auto res = Am.Gauss(C);
+    std::vector<double> exp = {2, 1.5};
+
+    ASSERT_EQ(res.size(), exp.size());
+    for (int i = 0; i < exp.size(); ++i) {
+        EXPECT_NEAR(res[i], exp[i], 0.01);
+    }
 }

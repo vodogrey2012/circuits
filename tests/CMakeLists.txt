@@ -27,6 +27,9 @@ configure_file(./e2e/e2e_tb3.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_tb4.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_tb_loops.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_tb4_loops.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb_loops1.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb_split.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_tb_invalid_parameters.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 # define testing flow to rename main of project
 add_compile_definitions(GTEST)
