@@ -23,7 +23,9 @@ double CircuitActive::FindCurrent() {
 void CircuitActive::FindMaxTree() {
     int i = 0;
     for(auto & wire : _wires){
+#ifdef DEBUG
         std::cout << i << std::endl;
+#endif
         i++;
         Point start;
         for(auto & point : _points){
@@ -32,8 +34,8 @@ void CircuitActive::FindMaxTree() {
             if(it != allel.end())
                 start = *it->first;
         }
-
         auto full = FindAllVisitedPoints(start);
+
         wire.SetExcluded(true);
         if(IsMonoTree(start, full))
             _wremoved.emplace_back(&wire);
@@ -50,6 +52,7 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
     for(size_t i = 0; i < C.GetIDem(); ++i){
         _wremoved[i]->SetExcluded(false);
         auto path = FindNoMonoTreePath(*_wremoved[i]);
+
 #ifdef DEBUG
         for(auto & r : path)
             std::cout << r ;
@@ -146,9 +149,10 @@ std::vector<int> CircuitActive::FindAllVisitedPoints(Point start) {
                 break;
             }
         }
-        if (!is_next_point && !deq.empty()){
-            point = deq.back();
+        if (!is_next_point){
             deq.pop_back();
+            if(!deq.empty())
+                point = deq.back();
         }
 
     } while(!deq.empty());
@@ -205,13 +209,14 @@ int CircuitActive::ReadFromFile(const std::istream& sfile){
     std::stringstream ss;
     ss << sfile.rdbuf();
     std::string s = ss.str();
+    s.push_back('\n');
 
     std::string point1("(\\d+)");
     std::string point2("(\\d+)");
     std::string resist("(\\d+(?:\\.\\d+)?)");
-    std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*V?\\s*;)?");
+    std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*V?\\s*[;\\n])?");
 
-    std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist + "\\s*;\\s*" + opteds);
+    std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist + "\\s*[;\\n]\\s*" + opteds);
     auto words_begin =
             std::sregex_iterator(s.begin(), s.end(), word_regex);
     auto words_end = std::sregex_iterator();

@@ -102,6 +102,19 @@ TEST(matrix, e2e_tb_invalid_parameters) {
     ASSERT_EQ(res.size(), 0);
 }
 
+TEST(matrix, e2e_long) {
+    const char* file = "e2e_long.txt";
+    auto res = CalcCircuit(file);
+
+    ASSERT_EQ(res.size(), 1225);
+    for(auto & res1 : res){
+        if(std::abs(res1) > 1e-18){
+            break;
+        }
+    }
+
+}
+
 std::vector<double> CalcCircuit(const char* file){
     int     argc = 2;
     char    arg0[] = "test_main";
