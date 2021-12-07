@@ -102,6 +102,17 @@ TEST(matrix, e2e_tb_invalid_parameters) {
     ASSERT_EQ(res.size(), 0);
 }
 
+TEST(matrix, e2e_tb5) {
+    const char* file = "e2e_tb5.txt";
+    std::vector<double> exp = {0, 0, 0, 1.68142, -1.68142};
+    auto res = CalcCircuit(file);
+
+    ASSERT_EQ(res.size(), exp.size());
+    for (int i = 0; i < exp.size(); ++i) {
+        EXPECT_NEAR(res[i], exp[i], 0.01);
+    }
+}
+
 TEST(matrix, e2e_long) {
     const char* file = "e2e_long.txt";
     auto res = CalcCircuit(file);

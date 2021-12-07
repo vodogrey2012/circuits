@@ -198,9 +198,11 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
         if (!is_next_point){
             deq.pop_back();
             ret.pop_back();
+            if(deq.size() == 0)
+                break;
             point = deq.back();
         }
-    } while(deq.front().GetIndex() != deq.back().GetIndex());
+    } while(deq.size() == 1 || (deq.front().GetIndex() != deq.back().GetIndex()));
 
     return ret;
 }

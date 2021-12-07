@@ -7,5 +7,5 @@ add_executable(circuits src/main.cpp src/Wire.h src/Point.cpp src/Point.h src/Ci
 
 add_subdirectory(tests)
 
-#add_compile_definitions(DEBUG)
+add_compile_definitions(DEBUG)
 
