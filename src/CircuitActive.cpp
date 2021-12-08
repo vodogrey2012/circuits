@@ -2,6 +2,7 @@
 // Created by Yauheni Sharamed on 20.11.2021.
 //
 
+#include <iomanip>
 #include "CircuitActive.h"
 
 double CircuitActive::FindCurrent() {
@@ -14,8 +15,8 @@ double CircuitActive::FindCurrent() {
     }
 
     for(auto & wire : _wires){
-        std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ":\tI = "
-                  << wire.GetI() << std::endl;
+        std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
+                  << std::setprecision(5) << wire.GetI() << " A" << std::endl;
     }
     return 0;
 }
@@ -215,7 +216,7 @@ int CircuitActive::ReadFromFile(const std::istream& sfile){
 
     std::string point1("(\\d+)");
     std::string point2("(\\d+)");
-    std::string resist("(\\d+(?:\\.\\d+)?)");
+    std::string resist("(-?\\d+(?:\\.\\d+)?)");
     std::string opteds("(?:(-?\\d+(?:\\.\\d+)?)\\s*V?\\s*[;\\n])?");
 
     std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist + "\\s*[;\\n]\\s*" + opteds);

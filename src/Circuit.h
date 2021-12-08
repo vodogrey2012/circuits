@@ -7,7 +7,6 @@
 
 #include "Point.h"
 #include <iostream>
-#include <sys/stat.h>
 
 
 class Circuit {

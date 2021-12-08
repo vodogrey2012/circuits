@@ -9,8 +9,6 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
-#include <typeinfo>
-#include <typeindex>
 
 template <typename T>
 class Matrix {
