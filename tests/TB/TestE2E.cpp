@@ -120,6 +120,21 @@ TEST(matrix, e2e_long) {
     ASSERT_EQ(res.size(), 1225);
     for(auto & res1 : res){
         if(std::abs(res1) > 1e-18){
+            ASSERT_TRUE(true);
+            break;
+        }
+    }
+
+}
+
+TEST(matrix, e2e_long1) {
+    const char* file = "e2e_long1.txt";
+    auto res = CalcCircuit(file);
+
+    ASSERT_EQ(res.size(), 4900);
+    for(auto & res1 : res){
+        if(std::abs(res1) > 1e-18){
+            ASSERT_TRUE(false);
             break;
         }
     }
@@ -141,7 +156,7 @@ std::vector<double> CalcCircuit(const char* file){
 
     std::string out = strCout.str();
 
-    std::regex re("I = (-?\\d+(?:\\.\\d+)?)");
+    std::regex re(": (-?\\d+(?:\\.\\d+)?)");
 
     auto words_begin =
             std::sregex_iterator(out.begin(), out.end(), re);
