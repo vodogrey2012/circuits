@@ -9,12 +9,12 @@ double CircuitActive::FindCurrent() {
 
     if(ConnectWires()) return -1;
     FindMaxTree();
-    if(_wremoved.size() != 0){
+    if(wremoved_.size() != 0){
         if(FindMeshCurrents()) return -1;
         FindCurrentsFromMesh();
     }
 
-    for(auto & wire : _wires){
+    for(auto & wire : wires_){
         std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
                   << std::setprecision(5) << wire.GetI() << " A" << std::endl;
     }
@@ -23,13 +23,13 @@ double CircuitActive::FindCurrent() {
 
 void CircuitActive::FindMaxTree() {
     int i = 0;
-    for(auto & wire : _wires){
+    for(auto & wire : wires_){
 #ifdef DEBUG
         std::cout << i << std::endl;
 #endif
         i++;
         Point start;
-        for(auto & point : _points){
+        for(auto & point : points_){
             auto allel = point.GetAllElements();
             auto it = std::find_if(allel.begin(), allel.end(), [&wire](const Point::pPElement& element){ return element.second->GetWindex() == wire.GetWindex();});
             if(it != allel.end())
@@ -39,7 +39,7 @@ void CircuitActive::FindMaxTree() {
 
         wire.SetExcluded(true);
         if(IsMonoTree(start, full))
-            _wremoved.emplace_back(&wire);
+            wremoved_.emplace_back(&wire);
         else
             wire.SetExcluded(false);
     }
@@ -47,40 +47,40 @@ void CircuitActive::FindMaxTree() {
 
 void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<double> & E) {
     for(size_t i = 0; i < E.GetIDem(); ++i){
-        Z[i][i] = _wires[i].GetR();
+        Z[i][i] = wires_[i].GetR();
     }
 
     for(size_t i = 0; i < C.GetIDem(); ++i){
-        _wremoved[i]->SetExcluded(false);
-        auto path = FindNoMonoTreePath(*_wremoved[i]);
+        wremoved_[i]->SetExcluded(false);
+        auto path = FindNoMonoTreePath(*wremoved_[i]);
 
 #ifdef DEBUG
         for(auto & r : path)
             std::cout << r ;
         std::cout << std::endl;
 #endif
-        _no_mono_paths.emplace_back(std::make_pair(path, 0));
+        no_mono_paths_.emplace_back(std::make_pair(path, 0));
         for(size_t j = 0; j < C.GetJDem(); ++j){
             for(size_t k = 0; k < path.size(); ++k){
-                if(path[k] == _wires[j].GetWindex()) {
+                if(path[k] == wires_[j].GetWindex()) {
                     C[i][j] = 1;
-                    E[j][0] = _wires[j].GetE();
+                    E[j][0] = wires_[j].GetE();
                 }
-                else if(path[k] == -1*_wires[j].GetWindex()){
+                else if(path[k] == -1 * wires_[j].GetWindex()){
                     C[i][j] = -1;
-                    E[j][0] = _wires[j].GetE();
+                    E[j][0] = wires_[j].GetE();
                 }
             }
         }
-        _wremoved[i]->SetExcluded(true);
+        wremoved_[i]->SetExcluded(true);
     }
 
 }
 
 int CircuitActive::FindMeshCurrents() {
-    Matrix<int>    C(_wremoved.size(), _wires.size());
-    Matrix<double> Z(_wires.size(), _wires.size());
-    Matrix<double> E(_wires.size(), 1);
+    Matrix<int>    C(wremoved_.size(), wires_.size());
+    Matrix<double> Z(wires_.size(), wires_.size());
+    Matrix<double> E(wires_.size(), 1);
     CalcMatrix(C, Z, E);
 
     Matrix<double> left = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse()));
@@ -105,7 +105,7 @@ int CircuitActive::FindMeshCurrents() {
         return -1;
     }
     for(size_t i = 0; i < res.size(); ++i)
-        _no_mono_paths[i].second = res[i];
+        no_mono_paths_[i].second = res[i];
 
 #ifdef DEBUG
     for(auto & it : res)
@@ -115,9 +115,9 @@ int CircuitActive::FindMeshCurrents() {
 }
 
 void CircuitActive::FindCurrentsFromMesh() {
-    for(auto & wire : _wires){
+    for(auto & wire : wires_){
         double i = 0;
-        for(auto & path : _no_mono_paths){
+        for(auto & path : no_mono_paths_){
             for(size_t k = 0; k < path.first.size(); ++k){
                 if(path.first[k] == wire.GetWindex())
                     i += path.second;
@@ -177,7 +177,7 @@ std::vector<int> CircuitActive::FindNoMonoTreePath(Wire start) {
     std::vector<int> wvisited;
     std::deque<Point> deq;
     std::vector<int> ret;
-    auto it = find_if(_points.begin(), _points.end(), [&start] (const Point& element) { return element.GetIndex() == start.GetIndex1(); } );
+    auto it = find_if(points_.begin(), points_.end(), [&start] (const Point& element) { return element.GetIndex() == start.GetIndex1(); } );
     auto point = *it;
     deq.push_back(point);
     do{

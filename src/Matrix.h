@@ -14,72 +14,83 @@ template <typename T>
 class Matrix {
 public:
     Matrix():
-            _i(0),
-            _j(0){}
+            i_(0),
+            j_(0){}
 
-    Matrix(int i, int j):
-            _i(i),
-            _j(j){
-        _matrix.resize(i);
-        for(auto & it : _matrix )
-            it.resize(j);
+    explicit Matrix(int i, int j):
+            i_(i),
+            j_(j){
+        try{
+            matrix_.resize(i);
+            for(auto & it : matrix_ )
+                it.resize(j);
+        }
+        catch (std::bad_alloc & ba){
+            std::cerr << "bad_alloc caught: " << ba.what();
+        }
     }
 
     Matrix(const Matrix &m) :
-            _i(m.GetIDem()),
-            _j(m.GetJDem()){
-        _matrix.resize(m.GetIDem());
-        for(auto & it : _matrix )
-            it.resize(m.GetJDem());
-        for(int x = 0; x < _i; ++x)
-            for(int y = 0; y < _j; ++y)
-                _matrix[x][y] = m[x][y];
+            i_(m.GetIDem()),
+            j_(m.GetJDem()){
+        try{
+            matrix_.resize(m.GetIDem());
+            for(auto & it : matrix_ )
+                it.resize(m.GetJDem());
+            for(int x = 0; x < i_; ++x)
+                for(int y = 0; y < j_; ++y)
+                    matrix_[x][y] = m[x][y];
+        }
+        catch (...){
+            std::exception_ptr p = std::current_exception();
+            std::cerr << (p ? p.__cxa_exception_type()->name() : "null") << std::endl;
+        }
     }
 
     Matrix(Matrix&& mm) noexcept :
-            _i(mm._i),
-            _j(mm._j),
-            _matrix(std::move(mm._matrix)){}
+            i_(mm.i_),
+            j_(mm.j_),
+            matrix_(std::move(mm.matrix_)){}
 
     ~Matrix()= default;
     int GetIDem() const{
-        return _i;
+        return i_;
     }
 
     int GetJDem() const{
-        return _j;
+        return j_;
     }
 
     Matrix<T> Transponse(){
-        Matrix<T> ret(_j, _i);
-        for(int x = 0; x < _i; ++x)
-            for(int y = 0; y < _j; ++y)
-                ret[y][x] = _matrix[x][y];
+        Matrix<T> ret(j_, i_);
+        for(int x = 0; x < i_; ++x)
+            for(int y = 0; y < j_; ++y)
+                ret[y][x] = matrix_[x][y];
         return ret;
     }
 
     T Det() const {
-        assert(_i == _j && "Invalid dimensions for Det operation");
-        auto save = _matrix;
+        assert(i_ == j_ && "Invalid dimensions for Det operation");
+        auto save = matrix_;
         return Determinant(save);
     }
 
     Matrix Inv(){
-        assert(_i == _j && "Invalid dimensions for Inv operation");
-        Matrix<T> ret(_i, _j);
+        assert(i_ == j_ && "Invalid dimensions for Inv operation");
+        Matrix<T> ret(i_, j_);
         auto det = Det();
 
-        if(_i == 1){
+        if(i_ == 1){
             ret[0][0] = 1/det;
             return ret;
         }
 
-        Matrix<T> minor(_i-1, _j-1);
-        for(size_t x = 0; x < _i; ++x){
-            for(size_t y = 0; y < _j; ++y){
-                for(size_t xx = 0; xx < _i-1; ++xx){
-                    for(size_t yy = 0; yy < _j-1; ++yy) {
-                        minor[xx][yy] = _matrix[xx < x ? xx : xx+1][yy < y ? yy : yy+1];
+        Matrix<T> minor(i_ - 1, j_ - 1);
+        for(size_t x = 0; x < i_; ++x){
+            for(size_t y = 0; y < j_; ++y){
+                for(size_t xx = 0; xx < i_ - 1; ++xx){
+                    for(size_t yy = 0; yy < j_ - 1; ++yy) {
+                        minor[xx][yy] = matrix_[xx < x ? xx : xx + 1][yy < y ? yy : yy + 1];
                     }
                 }
                 auto minor_det = minor.Det();
@@ -92,19 +103,19 @@ public:
     }
 
     Matrix Inv(T det){
-        assert(_i == _j && "Invalid dimensions for Inv operation");
-        Matrix<T> ret(_i, _j);
+        assert(i_ == j_ && "Invalid dimensions for Inv operation");
+        Matrix<T> ret(i_, j_);
 
-        if(_i == 1){
+        if(i_ == 1){
             ret[0][0] = 1/det;
             return ret;
         }
-        Matrix<T> minor(_i-1, _j-1);
-        for(size_t x = 0; x < _i; ++x){
-            for(size_t y = 0; y < _j; ++y){
-                for(size_t xx = 0; xx < _i-1; ++xx){
-                    for(size_t yy = 0; yy < _j-1; ++yy) {
-                        minor[xx][yy] = _matrix[xx < x ? xx : xx+1][yy < y ? yy : yy+1];
+        Matrix<T> minor(i_ - 1, j_ - 1);
+        for(size_t x = 0; x < i_; ++x){
+            for(size_t y = 0; y < j_; ++y){
+                for(size_t xx = 0; xx < i_ - 1; ++xx){
+                    for(size_t yy = 0; yy < j_ - 1; ++yy) {
+                        minor[xx][yy] = matrix_[xx < x ? xx : xx + 1][yy < y ? yy : yy + 1];
                     }
                 }
                 auto minor_det = minor.Det();
@@ -117,19 +128,24 @@ public:
     }
 
     std::vector<double> Gauss(std::vector<T> C){
-        assert(_i == _j &&
-                _i == C.size() && "Invalid dimensions for Gauss calulation");
+        assert(i_ == j_ &&
+               i_ == C.size() && "Invalid dimensions for Gauss calulation");
 
         std::vector<std::vector<double>> A;
-        A.resize(_i);
-        for(auto & it : A )
-            it.resize(_j+1);
+        try{
+            A.resize(i_);
+            for(auto & it : A )
+                it.resize(j_ + 1);
+        }
+        catch (std::bad_alloc & ba){
+            std::cerr << "bad_alloc caught: " << ba.what();
+        }
 
-        auto n = _i;
+        auto n = i_;
 
         for(auto x = 0; x < A.size(); x++)
             for(auto y = 0; y < A.size(); y++)
-                A[x][y] = _matrix[x][y];
+                A[x][y] = matrix_[x][y];
 
         for(auto x = 0; x < A.size(); x++)
             A[x][n] = C[x];
@@ -165,7 +181,12 @@ public:
         }
 
         std::vector<double> x;
-        x.resize(n);
+        try {
+            x.resize(n);
+        }
+        catch (std::bad_alloc & ba){
+            std::cerr << "bad_alloc caught: " << ba.what();
+        }
         x[n-1] = A[n-1][n]/A[n-1][n-1];
         for (int i = n - 2; i >= 0; i--) {
             x[i] = A[i][n];
@@ -201,11 +222,11 @@ private:
 
 public:
     std::vector<T> & operator[](int n){
-        return _matrix[n];
+        return matrix_[n];
     }
 
     const std::vector<T> & operator[](int n) const{
-        return _matrix[n];
+        return matrix_[n];
     }
 
     friend Matrix<T> operator+(const Matrix<T> & m1, const Matrix<T> & m2){
@@ -248,10 +269,10 @@ public:
 
     template <typename N>
     explicit operator Matrix<N>() {
-        Matrix<N> res(_i, _j);
-        for (int x = 0; x < _i; ++x)
-            for (int y = 0; y < _j; ++y)
-                res[x][y] = N(_matrix[x][y]);
+        Matrix<N> res(i_, j_);
+        for (int x = 0; x < i_; ++x)
+            for (int y = 0; y < j_; ++y)
+                res[x][y] = N(matrix_[x][y]);
         return res;
     }
 
@@ -283,16 +304,16 @@ public:
     Matrix<T> & operator=(Matrix<T>&& mm) noexcept {
         if (&mm == this)
             return *this;
-        _i = std::move(mm._i);
-        _j = std::move(mm._j);
-        _matrix = std::move(mm._matrix);
+        i_ = std::move(mm.i_);
+        j_ = std::move(mm.j_);
+        matrix_ = std::move(mm.matrix_);
         return *this;
     }
 
 private:
-    int _i;
-    int _j;
-    std::vector<std::vector<T>> _matrix;
+    int i_;
+    int j_;
+    std::vector<std::vector<T>> matrix_;
 };
 
 

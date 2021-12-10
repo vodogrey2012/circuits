@@ -12,16 +12,16 @@
 class Circuit {
 public:
     Circuit()= default;
-    ~Circuit()= default;
-    void AddWire(Wire wire){        _wires.push_back(wire);}
+    virtual ~Circuit()= default;
+    void AddWire(Wire wire){        wires_.push_back(wire);}
     int ConnectWires();
     friend std::ostream& operator<<(std::ostream& os, const Circuit& circuit);
 protected:
     void UniquePoints();
-    std::vector<Point> _points;
-    std::vector<Wire> _wires;
+    std::vector<Point> points_;
+    std::vector<Wire> wires_;
     void AddPoints();
-    void AddPoint(const Point& point){     _points.push_back(point);}
+    void AddPoint(const Point& point){     points_.push_back(point);}
 };
 
 

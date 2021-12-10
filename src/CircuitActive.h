@@ -26,8 +26,8 @@ private:
     int FindMeshCurrents();
     void FindCurrentsFromMesh();
     std::vector<int> FindNoMonoTreePath(Wire start);
-    std::vector<Wire*> _wremoved;
-    std::vector<std::pair<std::vector<int>, double>> _no_mono_paths;
+    std::vector<Wire*> wremoved_;
+    std::vector<std::pair<std::vector<int>, double>> no_mono_paths_;
 };
 
 
