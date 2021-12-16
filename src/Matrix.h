@@ -53,11 +53,11 @@ public:
         return ret;
     }
 
-    std::vector<double> Gauss(typename std::vector<T>::iterator begin, typename std::vector<T>::iterator end){
+    std::vector<T> Gauss(typename std::vector<T>::iterator begin, typename std::vector<T>::iterator end){
         assert(i_ == j_ &&
                i_ == std::distance(begin,end) && "Invalid dimensions for Gauss calulation");
 
-        std::vector<std::vector<double>> A;
+        std::vector<std::vector<T>> A;
         auto n = i_;
 
         try{
