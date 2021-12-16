@@ -58,25 +58,18 @@ public:
                i_ == std::distance(begin,end) && "Invalid dimensions for Gauss calulation");
 
         std::vector<std::vector<double>> A;
+        auto n = i_;
+
         try{
-            A.resize(i_);
-            for(auto & it : A )
-                it.resize(j_ + 1);
+            A = matrix_;
+            auto xx = 0;
+            for(auto it = begin; it < end; it++)
+                A[xx++].emplace_back(*it);
         }
         catch (const std::exception& err){
             std::cerr << "Exception: " << err.what();
             throw err;
         }
-
-        auto n = i_;
-
-        for(auto x = 0; x < A.size(); x++)
-            for(auto y = 0; y < A.size(); y++)
-                A[x][y] = matrix_[x][y];
-
-        auto xx = 0;
-        for(auto it = begin; it < end; it++)
-            A[xx++][n] = *it;
 
         int index;
         for (int l = 0; l < n; l++) {
