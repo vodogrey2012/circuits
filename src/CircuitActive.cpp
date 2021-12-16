@@ -78,14 +78,21 @@ void CircuitActive::CalcMatrix(Matrix<int> & C, Matrix<double> & Z, Matrix<doubl
 }
 
 int CircuitActive::FindMeshCurrents() {
-    Matrix<int>    C(wremoved_.size(), wires_.size());
-    Matrix<double> Z(wires_.size(), wires_.size());
-    Matrix<double> E(wires_.size(), 1);
-    CalcMatrix(C, Z, E);
-
-    Matrix<double> left = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse()));
-    Matrix<double> right = Matrix<double>(C)*E;
-    std::vector<double> vright;
+    std::unique_ptr<Matrix<double>> left;
+    std::unique_ptr<Matrix<double>> right;
+    try{
+        Matrix<int>    C(wremoved_.size(), wires_.size());
+        Matrix<double> Z(wires_.size(), wires_.size());
+        Matrix<double> E(wires_.size(), 1);
+        CalcMatrix(C, Z, E);
+        left = std::make_unique<Matrix<double>>();
+        right = std::make_unique<Matrix<double>>();
+        *left = (Matrix<double>(C)*Z*Matrix<double>(C.Transponse()));
+        *right = Matrix<double>(C)*E;
+    }
+    catch (const std::exception& err){
+        return -1;
+    }
 
 #ifdef DEBUG
     std::cout << "MATRIX C =\n" << C << std::endl;
@@ -94,12 +101,14 @@ int CircuitActive::FindMeshCurrents() {
     std::cout << "MATRIX left =\n" << left << std::endl;
 #endif
 
-    assert(right.GetJDem() == 1);
-    vright.reserve(right.GetIDem());
-    for(auto i = 0; i < right.GetIDem(); i++)
-        vright.emplace_back(right[i][0]);
+    std::vector<double> vright;
+    assert(right->GetJDem() == 1);
+    vright.reserve(right->GetIDem());
+    for(auto i = 0; i < right->GetIDem(); i++)
+        vright.emplace_back((*right)[i][0]);
 
-    std::vector<double> res = left.Gauss(vright);
+
+    std::vector<double> res = left->    Gauss(vright);
     if(res.size() == 0){
         std::cerr << "Invalid circuit parameters!" << std::endl;
         return -1;
@@ -107,6 +116,8 @@ int CircuitActive::FindMeshCurrents() {
     for(size_t i = 0; i < res.size(); ++i)
         no_mono_paths_[i].second = res[i];
 
+    left.reset();
+    right.reset();
 #ifdef DEBUG
     for(auto & it : res)
         std::cout << it << "\t|\n";

@@ -25,32 +25,16 @@ public:
             for(auto & it : matrix_ )
                 it.resize(j);
         }
-        catch (std::bad_alloc & ba){
-            std::cerr << "bad_alloc caught: " << ba.what();
+        catch (const std::exception& err){
+            std::cerr << "Exception: " << err.what();
+            throw err;
         }
     }
 
     Matrix(const Matrix &m) :
             i_(m.GetIDem()),
-            j_(m.GetJDem()){
-        try{
-            matrix_.resize(m.GetIDem());
-            for(auto & it : matrix_ )
-                it.resize(m.GetJDem());
-            for(int x = 0; x < i_; ++x)
-                for(int y = 0; y < j_; ++y)
-                    matrix_[x][y] = m[x][y];
-        }
-        catch (...){
-            std::exception_ptr p = std::current_exception();
-            std::cerr << (p ? p.__cxa_exception_type()->name() : "null") << std::endl;
-        }
-    }
-
-    Matrix(Matrix&& mm) noexcept :
-            i_(mm.i_),
-            j_(mm.j_),
-            matrix_(std::move(mm.matrix_)){}
+            j_(m.GetJDem()),
+            matrix_(m.matrix_){};
 
     ~Matrix()= default;
     int GetIDem() const{
@@ -137,8 +121,9 @@ public:
             for(auto & it : A )
                 it.resize(j_ + 1);
         }
-        catch (std::bad_alloc & ba){
-            std::cerr << "bad_alloc caught: " << ba.what();
+        catch (const std::exception& err){
+            std::cerr << "Exception: " << err.what();
+            throw err;
         }
 
         auto n = i_;
@@ -184,8 +169,9 @@ public:
         try {
             x.resize(n);
         }
-        catch (std::bad_alloc & ba){
-            std::cerr << "bad_alloc caught: " << ba.what();
+        catch (const std::exception& err){
+            std::cerr << "Exception: " << err.what();
+            throw err;
         }
         x[n-1] = A[n-1][n]/A[n-1][n-1];
         for (int i = n - 2; i >= 0; i--) {
@@ -198,7 +184,7 @@ public:
     }
 
 private:
-    T Determinant(std::vector<std::vector<T> >& Buffer) const {
+    T Determinant(std::vector<std::vector<T>> Buffer) const {
         if (std::all_of(Buffer.begin(), Buffer.end(),
                         [](std::vector<T> & p1) { return *p1.begin() == 0; }))
             return 0;
