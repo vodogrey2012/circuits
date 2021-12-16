@@ -44,15 +44,17 @@ private:
 
     void PrintResult (identity<double>){
         for(auto & wire : this->wires_){
+            std::cout.setf(std::ios::fixed);
             std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
-                      << std::setprecision(5) << wire.GetI() << " A" << std::endl;
+                      << std::setprecision(5) << std::noshowpoint << wire.GetI() << " A" << std::endl;
         }
     }
 
     void PrintResult (identity<std::complex<double>>){
         for(auto & wire : this->wires_){
+            std::cout.setf(std::ios::fixed);
             std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
-                      << std::setprecision(5) << std::abs(wire.GetI()) << " A, " << std::arg(wire.GetI()) << std::endl;
+                      << std::setprecision(5) << std::noshowpoint << std::abs(wire.GetI()) << " A, " << std::arg(wire.GetI()) << std::endl;
         }
     }
 
