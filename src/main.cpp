@@ -14,7 +14,7 @@
         return -1;
     }
 
-    CircuitActive circuit;
+    CircuitActive<double> circuit;
 
     if(argc == 2){
         std::ifstream t(argv[1]);
@@ -31,7 +31,7 @@
     }
 
 
-    auto res = circuit.FindCurrent();
+    int res = circuit.FindCurrent();
 
     return res;
 }
