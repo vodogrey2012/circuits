@@ -162,7 +162,11 @@ TEST(matrix, e2e_ac_long) {
 
     ASSERT_EQ(res.size(), 1225);
     for(auto & res1 : res){
-        if(std::abs(res1) > 1e-18){
+        if(std::abs(res1.first) > 1e-18){
+            ASSERT_TRUE(true);
+            break;
+        }
+        if(std::abs(res1.second) > 1e-18){
             ASSERT_TRUE(true);
             break;
         }
@@ -176,7 +180,11 @@ TEST(matrix, e2e_ac_long) {
 
     ASSERT_EQ(res.size(), 4900);
     for(auto & res1 : res){
-        if(std::abs(res1) > 1e-18){
+        if(std::abs(res1.first) > 1e-18){
+            ASSERT_TRUE(false);
+            break;
+        }
+        if(std::abs(res1.second) > 1e-18){
             ASSERT_TRUE(false);
             break;
         }
