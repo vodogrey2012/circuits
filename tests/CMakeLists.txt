@@ -34,6 +34,8 @@ configure_file(./e2e/e2e_long.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_tb5.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_long1.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 configure_file(./e2e/e2e_ac_tb1.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_ac_long.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(./e2e/e2e_ac_long1.txt ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 # define testing flow to rename main of project
 add_compile_definitions(GTEST)

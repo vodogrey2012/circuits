@@ -128,7 +128,6 @@ TEST(matrix, e2e_ac_tb1) {
     }
 }
 
-/*
 TEST(matrix, e2e_long) {
     const char* file = "e2e_long.txt";
     auto res = CalcCircuit(file);
@@ -156,7 +155,35 @@ TEST(matrix, e2e_long1) {
     }
 
 }
-*/
+
+TEST(matrix, e2e_ac_long) {
+    const char* file = "e2e_ac_long.txt";
+    auto res = CalcCircuitAC(file);
+
+    ASSERT_EQ(res.size(), 1225);
+    for(auto & res1 : res){
+        if(std::abs(res1) > 1e-18){
+            ASSERT_TRUE(true);
+            break;
+        }
+    }
+
+}
+
+ TEST(matrix, e2e_ac_long1) {
+    const char* file = "e2e_ac_long1.txt";
+    auto res = CalcCircuitAC(file);
+
+    ASSERT_EQ(res.size(), 4900);
+    for(auto & res1 : res){
+        if(std::abs(res1) > 1e-18){
+            ASSERT_TRUE(false);
+            break;
+        }
+    }
+
+}
+
 std::vector<double> CalcCircuit(const char* file){
     int     argc = 2;
     char    arg0[] = "test_main";
@@ -219,6 +246,5 @@ std::vector<std::pair<double, double>> CalcCircuitAC(const char* file){
         std::istringstream (match[2]) >> res2;
         ret.emplace_back(std::pair<double, double>(res1, res2));
     }
-
     return ret;
 }
