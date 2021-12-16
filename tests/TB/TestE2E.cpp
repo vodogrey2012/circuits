@@ -7,6 +7,7 @@
 #include <regex>
 
 std::vector<double> CalcCircuit(const char* file);
+std::vector<std::pair<double, double>> CalcCircuitAC(const char* file);
 
 TEST(matrix, e2e_tb1) {
     const char* file = "e2e_tb1.txt";
@@ -113,6 +114,21 @@ TEST(matrix, e2e_tb5) {
     }
 }
 
+TEST(matrix, e2e_ac_tb1) {
+    const char* file = "e2e_ac_tb1.txt";
+    std::vector<double> expampl = {0.44, 0.63, 1.08, 0.08, 0.37, 0.71};
+    std::vector<double> expfi = {0, 0, 3.14, 0, 0, 0};
+    assert(expampl.size() == expfi.size() && "Invalid test exp vectors");
+    auto res = CalcCircuitAC(file);
+
+    ASSERT_EQ(res.size(), expampl.size());
+    for (int i = 0; i < expampl.size(); ++i) {
+        EXPECT_NEAR(res[i].first, expampl[i], 0.01);
+        EXPECT_NEAR(res[i].second, expfi[i], 0.01);
+    }
+}
+
+/*
 TEST(matrix, e2e_long) {
     const char* file = "e2e_long.txt";
     auto res = CalcCircuit(file);
@@ -140,7 +156,7 @@ TEST(matrix, e2e_long1) {
     }
 
 }
-
+*/
 std::vector<double> CalcCircuit(const char* file){
     int     argc = 2;
     char    arg0[] = "test_main";
@@ -151,7 +167,7 @@ std::vector<double> CalcCircuit(const char* file){
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
     std::ostringstream strCout;
     std::cout.rdbuf( strCout.rdbuf() );
-    test_main(argc, argv);
+    test_main<double>(argc, argv);
     std::cout.rdbuf( oldCoutStreamBuf );
 
     std::string out = strCout.str();
@@ -168,6 +184,40 @@ std::vector<double> CalcCircuit(const char* file){
         double res = 0;
         std::istringstream (match[1]) >> res;
         ret.emplace_back(res);
+    }
+
+    return ret;
+}
+
+std::vector<std::pair<double, double>> CalcCircuitAC(const char* file){
+    int     argc = 2;
+    char    arg0[] = "test_main";
+    char*   arg1 = strdup(file);
+
+    char*   argv[] = { arg0, arg1};
+
+    std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+    std::ostringstream strCout;
+    std::cout.rdbuf( strCout.rdbuf() );
+    test_main<std::complex<double>>(argc, argv);
+    std::cout.rdbuf( oldCoutStreamBuf );
+
+    std::string out = strCout.str();
+
+    std::regex re(": (-?\\d+(?:\\.\\d+)?) A, (-?\\d+(?:\\.\\d+)?)");
+
+    auto words_begin =
+            std::sregex_iterator(out.begin(), out.end(), re);
+    auto words_end = std::sregex_iterator();
+
+    std::vector<std::pair<double, double>> ret;
+    for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+        std::smatch match = *i;
+        double res1 = 0;
+        double res2 = 0;
+        std::istringstream (match[1]) >> res1;
+        std::istringstream (match[2]) >> res2;
+        ret.emplace_back(std::pair<double, double>(res1, res2));
     }
 
     return ret;

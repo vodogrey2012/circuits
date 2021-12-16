@@ -9,6 +9,7 @@
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <complex>
 
 template <typename T>
 class Matrix {
@@ -89,19 +90,19 @@ public:
 
             if(std::abs(A[l][l]) < 1e-18){
                 std::cerr << "Degenerated matrix!" <<std::endl;
-                std::vector<double> ret;
+                std::vector<T> ret;
                 ret.resize(0);
                 return ret;
             }
 
             for (int i = l+1; i < n; i++) {
-                double tmp = A[i][l] / A[l][l];
+                T tmp = A[i][l] / A[l][l];
                 for (int j = n; j >= l; j--) //Считаем от последнего эл-та в строке, т.е. вектора b
                     A[i][j] -= tmp * A[l][j];
             }
         }
 
-        std::vector<double> x;
+        std::vector<T> x;
         try {
             x.resize(n);
         }

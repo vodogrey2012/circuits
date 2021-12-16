@@ -12,6 +12,8 @@
 #include <string>
 #include <regex>
 #include <iomanip>
+#include <complex>
+#include <math.h>
 
 template<typename T>
 struct identity { typedef T type; };
@@ -30,14 +32,30 @@ public:
             FindCurrentsFromMesh();
         }
 
-        for(auto & wire : this->wires_){
-            std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
-                      << std::setprecision(5) << wire.GetI() << " A" << std::endl;
-        }
+        PrintResult();
+
         return 0;
     }
 
 private:
+    void PrintResult (){
+        return PrintResult (identity<T>());
+    }
+
+    void PrintResult (identity<double>){
+        for(auto & wire : this->wires_){
+            std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
+                      << std::setprecision(5) << wire.GetI() << " A" << std::endl;
+        }
+    }
+
+    void PrintResult (identity<std::complex<double>>){
+        for(auto & wire : this->wires_){
+            std::cout << wire.GetIndex1() << " -- " << wire.GetIndex2() << ": "
+                      << std::setprecision(5) << std::abs(wire.GetI()) << " A, " << std::arg(wire.GetI()) << std::endl;
+        }
+    }
+
     void FindMaxTree() {
         int i = 0;
         for(auto & wire : this->wires_){
@@ -148,17 +166,17 @@ private:
             right = std::make_unique<Matrix<T>>();
             *left = (C*Z*C.Transponse());
             *right = C*E;
+#ifdef DEBUG
+    std::cout << "MATRIX C =\n" << C << std::endl;
+    std::cout << "MATRIX Z =\n"<< Z << std::endl;
+    std::cout << "MATRIX E =\n"<< E << std::endl;
+    std::cout << "MATRIX left =\n" << *left << std::endl;
+#endif
+
         }
         catch (const std::exception& err){
             return -1;
         }
-
-#ifdef DEBUG
-        std::cout << "MATRIX C =\n" << C << std::endl;
-    std::cout << "MATRIX Z =\n"<< Z << std::endl;
-    std::cout << "MATRIX E =\n"<< E << std::endl;
-    std::cout << "MATRIX left =\n" << left << std::endl;
-#endif
 
         std::vector<T> vright;
         assert(right->GetJDem() == 1);
@@ -274,6 +292,62 @@ private:
                 std::istringstream (match[4]) >> e;
 
             this->AddWire(Wire<double>(index1, index2, r, e, windex));
+            windex += 1;
+        }
+        return 0;
+    }
+
+    int ReadFromFile (const std::istream& sfile, identity<std::complex<double>>){
+        std::stringstream ss;
+        ss << sfile.rdbuf();
+        std::string s = ss.str();
+        s.push_back('\n');
+
+        std::string point1("(\\d+)");
+        std::string point2("(\\d+)");
+        std::string resist("(-?\\d+(?:\\.\\d+)?\\s*R)");
+        std::string capac("(-?\\d+(?:\\.\\d+)?\\s*C)");
+        std::string ind("(-?\\d+(?:\\.\\d+)?\\s*L)");
+        std::string opteds("(-?\\d+(?:\\.\\d+)?)\\s*V");
+        std::string optphase("(-?\\d+(?:\\.\\d+)?)\\s*");
+
+        std::regex word_regex(point1 + "\\s*--\\s*" + point2 + "\\s*,\\s*" + resist
+            + "\\s*;\\s*" + capac + "\\s*;\\s*" + ind + "\\s*[;\\n]\\s*"
+            + "(?:" +  opteds + "\\s*,\\s*" + optphase + "\\s*[;\\n])?");
+        auto words_begin =
+                std::sregex_iterator(s.begin(), s.end(), word_regex);
+        auto words_end = std::sregex_iterator();
+
+        if(words_begin == words_end){
+            std::cerr << "Incorrect input file format." << std::endl;
+            return -1;
+        }
+
+        int windex = 1;
+        for(std::sregex_iterator i = words_begin; i != words_end; ++i) {
+            std::smatch match = *i;
+
+            int index1;
+            int index2;
+            double r;
+            double l;
+            double c;
+            double e = 0;
+            double fi = 0;
+            std::istringstream (match[1]) >> index1;
+            std::istringstream (match[2]) >> index2;
+            std::istringstream (match[3]) >> r;
+            std::istringstream (match[4]) >> l;
+            std::istringstream (match[5]) >> c;
+
+            if(match[6].str().length() != 0 || match[7].str().length() != 0){
+                std::istringstream (match[6]) >> e;
+                std::istringstream (match[7]) >> fi;
+            }
+
+
+            this->AddWire(Wire<std::complex<double>>(index1, index2, std::complex<double>(r, l-c),
+                    std::complex<double>(e*cos(fi), -e*sin(fi)), windex));
             windex += 1;
         }
         return 0;

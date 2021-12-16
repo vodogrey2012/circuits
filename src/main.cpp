@@ -2,19 +2,19 @@
 #include "Wire.h"
 #include "Circuit.h"
 #include "CircuitActive.h"
+#include <complex>
 
-#ifdef GTEST
-    #include "../tests/env/TestMain.h"
-    int test_main(int argc, char* argv[]) {
-#else
+#ifndef GTEST
+
     int main(int argc, char* argv[]) {
-#endif
+        using T = std::complex<double>;
+
     if((argc != 2) && (argc != 1)){
         std::cerr << "Arguments: infile. Or redirect stream" << std::endl;
         return -1;
     }
 
-    CircuitActive<double> circuit;
+    CircuitActive<T> circuit;
 
     if(argc == 2){
         std::ifstream t(argv[1]);
@@ -30,8 +30,9 @@
         circuit.ReadFromFile(std::cin);
     }
 
-
     int res = circuit.FindCurrent();
 
     return res;
 }
+
+#endif
