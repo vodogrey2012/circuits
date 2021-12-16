@@ -268,92 +268,6 @@ ASSERT_EQ(res1.GetIDem(), 1);
 ASSERT_EQ(res1.GetJDem(), 5);
 }
 
-TEST(matrix, determinant) {
-    Matrix<double> m1(2, 2);
-    m1[0][0] = 1;
-    m1[0][1] = 2;
-    m1[1][0] = 3;
-    m1[1][1] = 4;
-
-    ASSERT_EQ(m1.Det(), (1*4 - 2*3));
-
-    Matrix<double> m3(3, 3);
-    m3[0][0] = 1;
-    m3[0][1] = 2;
-    m3[0][2] = 3;
-    m3[1][0] = 3;
-    m3[1][1] = 4;
-    m3[1][2] = 5;
-    m3[2][0] = 5;
-    m3[2][1] = 6;
-    m3[2][2] = 7;
-
-    ASSERT_EQ(m3.Det(), 0);
-
-    Matrix<double> m4(2, 2);
-    m4[0][0] = 6.5;
-    m4[0][1] = 2.2;
-    m4[1][0] = 3.5;
-    m4[1][1] = 4.1;
-    ASSERT_DOUBLE_EQ(m4.Det(), 18.95);
-
-    Matrix<int> m5(3, 3);
-    m5[0][0] = 30;
-    m5[0][1] = 0;
-    m5[0][2] = 0;
-    m5[1][0] = 22;
-    m5[1][1] = 0;
-    m5[1][2] = 0;
-    m5[2][0] = 0;
-    m5[2][1] = 72;
-    m5[2][2] = 12;
-    ASSERT_DOUBLE_EQ(m5.Det(), 0);
-}
-
-
-TEST(matrix, inverse) {
-Matrix<double> m1(2, 2);
-m1[0][0] = 1;
-m1[0][1] = 2;
-m1[1][0] = 3;
-m1[1][1] = 4;
-
-auto res = m1 * m1.Inv();
-    EXPECT_NEAR(res[0][0], 1, 0.00001);
-    EXPECT_NEAR(res[0][1], 0, 0.00001);
-    EXPECT_NEAR(res[1][0], 0, 0.00001);
-    EXPECT_NEAR(res[1][1], 1, 0.00001);
-
-ASSERT_EQ(m1.Inv().GetIDem(), 2);
-ASSERT_EQ(m1.Inv().GetJDem(), 2);
-
-Matrix<double> m3(2, 2);
-m3[0][0] = 6.5;
-m3[0][1] = 2.2;
-m3[1][0] = 3.5;
-m3[1][1] = 4.1;
-
-Matrix<double> ref(2, 2);
-ref[0][0] = 0.21636;
-ref[0][1] = -0.11610;
-ref[1][0] = -0.18470;
-ref[1][1] = 0.34301;
-
-Matrix<double> inv_d = m3.Inv();
-EXPECT_NEAR(inv_d[0][0], ref[0][0], 0.00001);
-EXPECT_NEAR(inv_d[0][1], ref[0][1], 0.00001);
-EXPECT_NEAR(inv_d[1][0], ref[1][0], 0.00001);
-EXPECT_NEAR(inv_d[1][1], ref[1][1], 0.00001);
-
-auto res1 = m3 * inv_d;
-EXPECT_NEAR(res1[0][0], 1, 0.00001);
-EXPECT_NEAR(res1[0][1], 0, 0.00001);
-EXPECT_NEAR(res1[1][0], 0, 0.00001);
-EXPECT_NEAR(res1[1][1], 1, 0.00001);
-ASSERT_EQ(inv_d.GetIDem(), 2);
-ASSERT_EQ(inv_d.GetJDem(), 2);
-}
-
 TEST(matrix, wrong_dimensions) {
 // Test of errors caused by arithmetical operations
 // with matrix of non-matching dimensions.
@@ -367,19 +281,6 @@ Matrix<double> res = m1 - m2;
 }, "Invalid dimensions");
 ASSERT_DEATH({
 Matrix<double> res = m2 * m1;
-}, "Invalid dimensions");
-}
-
-TEST(matrix, non_square_det) {
-// Test of errors caused by calculation
-// of determinant of non-square matrix.
-Matrix<double> m(2, 3);
-ASSERT_DEATH({
-double d = m.Det();
-}, "Invalid dimensions");
-Matrix<double> j(3, 2);
-ASSERT_DEATH({
-double d = j.Det();
 }, "Invalid dimensions");
 }
 
@@ -428,7 +329,7 @@ TEST(matrix, gauss1) {
 
     std::vector<double> C = {5, 6};
 
-    auto res = Am.Gauss(C);
+    auto res = Am.Gauss(C.begin(), C.end());
     std::vector<double> exp = {-4, 4.5};
 
     ASSERT_EQ(res.size(), exp.size());
@@ -449,7 +350,7 @@ TEST(matrix, gauss2) {
 
     std::vector<double> C = {5, 6};
 
-    auto res = Am.Gauss(C);
+    auto res = Am.Gauss(C.begin(), C.end());
     std::vector<double> exp = {2, 1.5};
 
     ASSERT_EQ(res.size(), exp.size());

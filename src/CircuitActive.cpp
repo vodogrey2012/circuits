@@ -108,7 +108,7 @@ int CircuitActive::FindMeshCurrents() {
         vright.emplace_back((*right)[i][0]);
 
 
-    std::vector<double> res = left->    Gauss(vright);
+    std::vector<double> res = left->    Gauss(vright.begin(), vright.end());
     if(res.size() == 0){
         std::cerr << "Invalid circuit parameters!" << std::endl;
         return -1;

@@ -53,67 +53,9 @@ public:
         return ret;
     }
 
-    T Det() const {
-        assert(i_ == j_ && "Invalid dimensions for Det operation");
-        auto save = matrix_;
-        return Determinant(save);
-    }
-
-    Matrix Inv(){
-        assert(i_ == j_ && "Invalid dimensions for Inv operation");
-        Matrix<T> ret(i_, j_);
-        auto det = Det();
-
-        if(i_ == 1){
-            ret[0][0] = 1/det;
-            return ret;
-        }
-
-        Matrix<T> minor(i_ - 1, j_ - 1);
-        for(size_t x = 0; x < i_; ++x){
-            for(size_t y = 0; y < j_; ++y){
-                for(size_t xx = 0; xx < i_ - 1; ++xx){
-                    for(size_t yy = 0; yy < j_ - 1; ++yy) {
-                        minor[xx][yy] = matrix_[xx < x ? xx : xx + 1][yy < y ? yy : yy + 1];
-                    }
-                }
-                auto minor_det = minor.Det();
-                if((x+y)%2 == 1)
-                    minor_det *= -1.0;
-                ret[y][x] = minor_det/det;
-            }
-        }
-        return ret;
-    }
-
-    Matrix Inv(T det){
-        assert(i_ == j_ && "Invalid dimensions for Inv operation");
-        Matrix<T> ret(i_, j_);
-
-        if(i_ == 1){
-            ret[0][0] = 1/det;
-            return ret;
-        }
-        Matrix<T> minor(i_ - 1, j_ - 1);
-        for(size_t x = 0; x < i_; ++x){
-            for(size_t y = 0; y < j_; ++y){
-                for(size_t xx = 0; xx < i_ - 1; ++xx){
-                    for(size_t yy = 0; yy < j_ - 1; ++yy) {
-                        minor[xx][yy] = matrix_[xx < x ? xx : xx + 1][yy < y ? yy : yy + 1];
-                    }
-                }
-                auto minor_det = minor.Det();
-                if((x+y)%2 == 1)
-                    minor_det *= -1.0;
-                ret[y][x] = minor_det/det;
-            }
-        }
-        return ret;
-    }
-
-    std::vector<double> Gauss(std::vector<T> C){
+    std::vector<double> Gauss(typename std::vector<T>::iterator begin, typename std::vector<T>::iterator end){
         assert(i_ == j_ &&
-               i_ == C.size() && "Invalid dimensions for Gauss calulation");
+               i_ == std::distance(begin,end) && "Invalid dimensions for Gauss calulation");
 
         std::vector<std::vector<double>> A;
         try{
@@ -132,8 +74,9 @@ public:
             for(auto y = 0; y < A.size(); y++)
                 A[x][y] = matrix_[x][y];
 
-        for(auto x = 0; x < A.size(); x++)
-            A[x][n] = C[x];
+        auto xx = 0;
+        for(auto it = begin; it < end; it++)
+            A[xx++][n] = *it;
 
         int index;
         for (int l = 0; l < n; l++) {
@@ -181,29 +124,6 @@ public:
             x[i] = x[i]/A[i][i];
         }
         return x;
-    }
-
-private:
-    T Determinant(std::vector<std::vector<T>> Buffer) const {
-        if (std::all_of(Buffer.begin(), Buffer.end(),
-                        [](std::vector<T> & p1) { return *p1.begin() == 0; }))
-            return 0;
-        auto first = Buffer.begin();
-        if (Buffer.size() == 1)
-            return *first->begin();
-        for (auto i = Buffer.begin() + 1, end = Buffer.end(); i != end; ++i) {
-            if(std::abs(*first->begin()) < 1e-18)
-                continue;
-            T TMP = *i->begin() / *first->begin();
-            std::transform(first->begin(), first->end(), i->begin(), i->begin(),
-                           [&TMP](const T& value1, const T& value2)->T {
-                               return value2 - value1 * TMP;
-                           });
-        }
-        std::vector<std::vector<T> > matrix(Buffer.size() - 1);
-        for (auto i = Buffer.begin() + 1, end = Buffer.end(), Tmp = matrix.begin(); i != end; ++i)
-            std::copy(i->begin() + 1, i->end(), back_inserter(*Tmp++));
-        return *first->begin() * Determinant(matrix);
     }
 
 public:
